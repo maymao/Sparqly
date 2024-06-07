@@ -68,7 +68,8 @@ class FieldDropdownSelectVariable extends Blockly.FieldDropdown {
   static dropdownGenerator() {
     let selectVars = JSON.parse(localStorage.getItem('selectVars')) || {};
     let classNames = JSON.parse(localStorage.getItem('classNames')) || {};
-    let variables = { ...selectVars, ...classNames };
+    let otherVars = JSON.parse(localStorage.getItem('otherVars')) || {};
+    let variables = { ...selectVars, ...classNames, ...otherVars};
 
     const options = Object.keys(variables).map(variable => [variable, variable]);
     return options.length ? options : [['default', 'default']];

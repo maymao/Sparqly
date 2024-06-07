@@ -18,7 +18,7 @@ block('sparql_union', {
 block('sparql_filter', {
     init: function() {
       this.appendValueInput("FILTER_CONDITION")
-          .setCheck("Condition")
+          .setCheck(["Condition", "Number", "Boolean", "String", "Variable", "Math"])
           .appendField("FILTER");
       this.setPreviousStatement(true, "VARIABLE");
       this.setNextStatement(true, "VARIABLE");

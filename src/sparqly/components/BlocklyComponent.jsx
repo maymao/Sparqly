@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import * as Blockly from 'blockly';
 import '../blocks/index.js';
 import { Sparql } from '../generator/index.js';
@@ -8,12 +8,13 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
-import { Grid } from '@mui/material';
+import { SparqlContext } from '../SparqlContext.js';
 
 const BlocklyComponent = () => {
   const blocklyRef = useRef(null);
   const workspaceRef = useRef(null);
-  const [sparqlCode, setSparqlCode] = useState(''); 
+  // const [sparqlCode, setSparqlCode]= useState(''); 
+  const { sparqlCode, setSparqlCode } = useContext(SparqlContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [storedBlocks, setStoredBlocks] = useState([]);
   const [showCopyMessage, setShowCopyMessage] = useState(false);
@@ -21,12 +22,211 @@ const BlocklyComponent = () => {
   Blockly.utils.colour.setHsvSaturation(0.25);
   Blockly.utils.colour.setHsvValue(0.75);
 
+  const oneMany = `
+  <block type="sparql_prefix">
+    <mutation prefixes="4"></mutation>
+    <field name="PREFIX_LABEL0">rdf</field>
+    <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+    <field name="PREFIX_LABEL1">rdfs</field>
+    <field name="URI1">http://www.w3.org/2000/01/rdf-schema#</field>
+    <field name="PREFIX_LABEL2">owl</field>
+    <field name="URI2">http://www.w3.org/2002/07/owl#</field>
+    <field name="PREFIX_LABEL3"> </field>
+    <field name="URI3">http://www.semwebtech.org/mondial/10/meta#</field>
+    <next>
+      <block type="sparql_select">
+        <value name="VARIABLES">
+          <block type="sparql_variable_select">
+            <field name="VARIABLE">country</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select">
+                <field name="VARIABLE">city</field>
+                <value name="NEXT_VARIABLE">
+                  <block type="sparql_variable_select">
+                    <field name="VARIABLE">cityPop</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="WHERE">
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">ct</field>
+              </block>
+            </value>
+            <statement name="PROPERTIES">
+              <block type="sparql_properties_in_class">
+                <value name="INPUT">
+                  <block type="sparql_variable_type">
+                    <field name="VARIABLE2">type</field>
+                    <value name="TYPE1">
+                      <block type="sparql_prefix_list">
+                        <field name="PREFIX">rdf</field>
+                      </block>
+                    </value>
+                    <value name="TYPE2">
+                      <block type="sparql_variable_typename">
+                        <field name="VARIABLE">City</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">name</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">?city</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">cityIn</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">?c</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">name</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">?cityPop</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="sparql_class_with_property">
+                <value name="CLASS_NAME">
+                  <block type="sparql_variable_confirmed">
+                    <field name="VARIABLE">c</field>
+                  </block>
+                </value>
+                <statement name="PROPERTIES">
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">type</field>
+                        <value name="TYPE1">
+                          <block type="sparql_prefix_list">
+                            <field name="PREFIX">rdf</field>
+                          </block>
+                        </value>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_typename">
+                            <field name="VARIABLE">Country</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">name</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">?country</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">population</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_confirmed">
+                                    <field name="VARIABLE">countryPop</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="sparql_filter">
+                    <value name="FILTER_CONDITION">
+                      <block type="sparql_comparison">
+                        <field name="OPERATOR">&gt;</field>
+                        <value name="OPERAND1">
+                          <block type="sparql_variable_confirmed">
+                            <field name="VARIABLE">countryPop</field>
+                          </block>
+                        </value>
+                        <value name="OPERAND2">
+                          <block type="sparql_number">
+                            <field name="NUMBER">20000000</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_filter">
+                        <value name="FILTER_CONDITION">
+                          <block type="sparql_comparison">
+                            <field name="OPERATOR">&gt;</field>
+                            <value name="OPERAND1">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">?cityPop</field>
+                              </block>
+                            </value>
+                            <value name="OPERAND2">
+                              <block type="sparql_number">
+                                <field name="NUMBER">5000000</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+  `;
+
+  const patterns = [];
+
   const getToolboxXML = () => {
     return `
       <xml xmlns="https://developers.google.com/blockly/xml">
 
         <category name="Examples" categorystyle="examples_category">
-        
+        ${oneMany}
         </category>
 
         <category name="Basics" categorystyle="basics_category">
@@ -319,14 +519,14 @@ const BlocklyComponent = () => {
 
   return (
     <div>
-    <Grid container spacing={2}>
-      <Grid item xs={12} md={8}>
+    {/* <Grid container spacing={2}>
+      <Grid item xs={12} md={8}> */}
         <Accordion defaultExpanded>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">Workspace</Typography>
+            <Typography variant="h6">Workspace </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <div style={{ display: 'flex', height: '80vh', position: 'relative', maxHeight: '600px' }}>
+            <div style={{ display: 'flex', height: '80vh', position: 'relative' }}>
               <div ref={blocklyRef} style={{ flex: 2, minWidth: '100%' }} />
               <button onClick={saveWorkspaceToStoredBlocks} style={{
                 position: 'absolute',
@@ -365,8 +565,8 @@ const BlocklyComponent = () => {
             </div>
           </AccordionDetails>
         </Accordion>
-      </Grid>
-      <Grid item xs={12} md={4}>
+      {/* </Grid>
+      <Grid item xs={12} md={4}> */}
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="h6">Code Display</Typography>
@@ -430,9 +630,9 @@ const BlocklyComponent = () => {
             </div>
           </AccordionDetails>
         </Accordion>
-      </Grid>
-    </Grid>
-    </div>
+      {/* </Grid> */}
+     {/* </Grid> */}
+  </div>
   );
 }
 

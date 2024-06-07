@@ -162,7 +162,6 @@ const extendSparqlWithClassWithProperty = (Sparql) => {
     while (connectorBlock) {
       var variableTypeCode = Sparql.valueToCode(connectorBlock, 'INPUT', Sparql.ORDER_NONE) || '';
       propertiesCodes.push(variableTypeCode);
-      
       connectorBlock = connectorBlock.nextConnection && connectorBlock.nextConnection.targetBlock();
     }
 

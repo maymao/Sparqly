@@ -6,7 +6,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import MenuIcon from '@mui/icons-material/Menu';
 import SchemaIcon from '@mui/icons-material/Schema';
-
+import HubIcon from '@mui/icons-material/Hub';
 import {
   Button,
   Dialog,
@@ -43,8 +43,8 @@ import GraphsPage from './graphs';
 import { DatabaseState } from './reducer/databaseReducer';
 import SchemaPage from './schemaPage';
 import { getRepoList } from './service';
-import BlocklyComponent from '@/sparqly/components/BlocklyComponent';
-console.log('BlocklyComponent', BlocklyComponent);
+import Sparqly from '../sparqly'
+
 
 interface IRepository {
   id: number;
@@ -75,7 +75,7 @@ function DashboardContent() {
   const dispatch = useDispatch();
 
   const [siderOpen, setSiderOpen] = useState(true);
-  const [tab, setTab] = useState(TABS_DASHBOARD.SPARQL_QUERY);
+  const [tab, setTab] = useState(TABS_DASHBOARD.SPARQLY);
 
   const [repoList, setRepoList] = useState<string[]>([]);
   const [selectRepoReminder, setSelectRepoReminder] = useState<boolean>(false);
@@ -223,7 +223,7 @@ function DashboardContent() {
       return <GraphsPage />;
     }
     if (tab_current === TABS_DASHBOARD.SPARQLY) {
-      return <BlocklyComponent />;
+      return <Sparqly repo_graphDB={repo_graphDB} db_prefix_URL={db_prefix_URL}/>;
     }
     return 'ERROR';
   }
@@ -240,7 +240,7 @@ function DashboardContent() {
     [TABS_DASHBOARD.REPOSITORIES]: <DashboardIcon />,
     [TABS_DASHBOARD.SPARQL_QUERY]: <ManageSearchIcon />,
     [TABS_DASHBOARD.SCHEMA]: <SchemaIcon />,
-    [TABS_DASHBOARD.SPARQLY]: <AssessmentIcon />,
+    [TABS_DASHBOARD.SPARQLY]: <HubIcon />,
     [TABS_DASHBOARD.GRAPHS]: <AssessmentIcon />,
   };
 
@@ -275,7 +275,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              SPARQLy
+              GraphLD
               <IconButton
                 sx={{ marginLeft: 2 }}
                 href={`https://github.com/Garyoook/GraphLD/`}

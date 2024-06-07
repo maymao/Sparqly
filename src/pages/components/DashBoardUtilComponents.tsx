@@ -14,7 +14,7 @@ export function Copyright(props: any) {
     >
       {'Copyright © '}
       <Link color="inherit" href="https://www.doc.ic.ac.uk/~yg9418/">
-        Gary Gao
+        
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}

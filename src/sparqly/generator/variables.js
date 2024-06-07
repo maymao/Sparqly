@@ -85,7 +85,7 @@ const extendSparqlWithVariableType = (Sparql) => {
     
     let code = variable1 + ':' + variable2;  // variable1:variable2
     if (nameCode) {
-      code += nameCode;  
+      code += ' ' + nameCode;  
     }
 
     return [code, Sparql.ORDER_ATOMIC];

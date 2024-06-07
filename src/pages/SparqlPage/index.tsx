@@ -332,13 +332,13 @@ WHERE {
   useEffect(() => {
     if (searchParams.get('query')) {
       setQuery(searchParams.get('query') || initialString);
-
+       
       const repo = searchParams.get('repo_graphDB') || '';
       const prefix = searchParams.get('db_prefix_URL') || '';
-
+      
       console.log('repo: ', repo);
       console.log('prefix: ', prefix);
-
+      
       setFullLoading(true);
       initConceptualModelInfo(repo, prefix);
     }
