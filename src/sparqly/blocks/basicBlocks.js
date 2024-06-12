@@ -31,13 +31,13 @@ block('sparql_braces', {
     init: function() {
         this.appendDummyInput()
             .appendField("{");
-
         this.appendStatementInput("PATTERN")
             .setCheck(null);
         this.appendDummyInput()
             .appendField("}");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
+        this.setOutput(true, null);
         this.setColour(120);
         this.setTooltip("Group a set of triple patterns.");
     }

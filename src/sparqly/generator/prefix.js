@@ -6,7 +6,8 @@ const extendSparqlWithPrefix = (Sparql) => {
             const prefixLabel = block.getFieldValue('PREFIX_LABEL' + i);
             const uri = block.getFieldValue('URI' + i);
             if (prefixLabel && uri) {
-                prefixes[prefixLabel] = uri;
+                const uniqueKey = 'prefix_' + i;
+                prefixes[uniqueKey] = prefixLabel;
                 code += `PREFIX ${prefixLabel}: <${uri}>\n`;
             }
         }
@@ -17,10 +18,12 @@ const extendSparqlWithPrefix = (Sparql) => {
   
 const extendSparqlWithPrefixList = (Sparql) => {
     Sparql.sparql_prefix_list = function(block) {
-        var prefix = block.getFieldValue('PREFIX');
-        
+        var prefix_key = block.getFieldValue('PREFIX');
+        const prefixes = JSON.parse(localStorage.getItem('prefixes')) || {};
+        const prefix = prefixes ? prefixes[prefix_key] : '';
         return [prefix, Sparql.ORDER_ATOMIC];
     };
 };
+
 export { extendSparqlWithPrefix, extendSparqlWithPrefixList };
   

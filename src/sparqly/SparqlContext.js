@@ -8,8 +8,8 @@ export const SparqlContext = createContext({
   sparqlOriginalResult: null, 
   setSparqlOriginalResult: () => {}, 
 
-  recommendations: [],
-  setRecommendations: () => {},
-  excludedRecommendations: [],
-  setExcludedRecommendations: () => {},
+  // recommendations: [],
+  // setRecommendations: () => {},
+  // excludedRecommendations: [],
+  // setExcludedRecommendations: () => {},
 });

@@ -40,7 +40,7 @@ import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
 import { DataGridPro } from '@mui/x-data-grid-pro';
 import CodeMirror from '@uiw/react-codemirror';
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useEffect, useState, useContext, useRef } from 'react';
 import {
   ChartType_mapping,
   DATA_DIMENTION_TYPE,
@@ -67,6 +67,14 @@ import {
   queryResultToData,
 } from './ConceptualModel/service';
 import { customIconsTheme, defaultAutocompletions } from './codeMirrorConfigs';
+import BlocklyComponent from '../../sparqly/components/BlocklyComponent';
+import { SparqlContext } from '../../sparqly/SparqlContext';
+import Sparqly from '../../sparqly'
+import * as Blockly from 'blockly';
+import { Sparql } from '../../sparqly/generator/index.js';
+import myTheme from '../../sparqly/core/theme.js';
+import { Add, Remove } from '@mui/icons-material';
+
 
 export interface VisDataProps {
   headers: string[];
@@ -110,7 +118,7 @@ function isJson(str: string) {
   return true;
 }
 
-function SparqlPage(props: any) {
+function SparqlyPage(props: any) {
   const { repo_graphDB, db_prefix_URL } = props;
 
   const initialString = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -125,152 +133,22 @@ WHERE {
            :population ?population .
 } ORDER BY DESC(?population)`;
 
-  const f3a = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX : <${db_prefix_URL}>
-SELECT ?inflation ?unemployment WHERE {
-    ?c rdf:type :Country ;
-       :inflation ?inflation ;
-       :unemployment ?unemployment .
-}`;
+const blocklyRef = useRef<HTMLDivElement>(null);
+const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
+const [sidebarOpen, setSidebarOpen] = useState(false);
+const [storedBlocks, setStoredBlocks] = useState<string[]>([]);
+const [showCopyMessage, setShowCopyMessage] = useState(false);
+const [fontSize, setFontSize] = useState(14);
+const [sparqlCode, setSparqlCode] = useState<string>(initialString);
 
-  const f3b = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX : <http://www.semwebtech.org/mondial/10/meta#>
-SELECT ?continent ?country ?population 
-WHERE {
-    ?c rdf:type :Country ;
-        :name ?country ;
-        :population ?population ;
-        :encompassedByInfo ?en .
-    ?en :encompassedBy ?con ;
-    :percent ?percent .
-    ?con rdf:type :Continent ;
-          :name ?continent .
-    # FILTER ( ?percent > 50)
-}`;
 
-  const year_pop = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-  PREFIX : <http://www.semwebtech.org/mondial/10/meta#>
-  
-  SELECT  ?year ?population ?country
-  WHERE {
-       ?c rdf:type :Country ;
-          :name ?country ;
-          :encompassed ?conclass ;
-          :hadPopulation ?py .
-       ?conclass :name ?continent .
-       ?py rdf:type :PopulationCount ;
-           :year ?year;
-           :value ?population .
-       FILTER (?continent = "Europe") .
-       FILTER EXISTS {?c :hadPopulation ?hp .
-                      ?hp :value ?hpv .
-                      FILTER (?hpv > 20000000)
-                    } .
-  }
-  ORDER BY ?year`;
-
-  const border_length = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX : <http://www.semwebtech.org/mondial/10/meta#>
-
-SELECT ?country1 ?country2 ?length
-WHERE {
-      ?b rdf:type :Border ;
-        :isBorderOf ?c1 ;
-        :isBorderOf ?c2 ;
-        :length ?length .
-    ?c1 rdf:type :Country ;
-        :carCode ?cc1 ;
-        :name ?country1 .
-    ?c2 rdf:type :Country ;
-        :carCode ?cc2 ;
-        :name ?country2 ;
-        :encompassed ?conclass .
-    ?conclass :name ?continent .
-    # Filter conditions
-    FILTER (?country1<?country2)
-    FILTER (?continent = 'South America')
-}`;
-
-  const country_city_pop = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX : <http://www.semwebtech.org/mondial/10/meta#>
-
-SELECT ?country ?city ?cityPop
-WHERE {
-  ?ct rdf:type :City ;
-        :name ?city ;
-        :cityIn ?c ;
-        :population ?cityPop .
-  ?c rdf:type :Country ;
-    :name ?country ;
-    :population ?countryPop .
-  FILTER (?countryPop > 20000000) .
-  FILTER (?cityPop > 5000000)
-}`;
-
-  const conti_country_city_pop = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX : <http://www.semwebtech.org/mondial/10/meta#>
-
-SELECT ?continent ?country ?city ?cityPop
-WHERE {
-  ?ct rdf:type :City ;
-        :name ?city ;
-        :cityIn ?c ;
-        :population ?cityPop .
-  ?c rdf:type :Country ;
-    :name ?country ;
-    :population ?countryPop ;
-    :encompassedByInfo ?en .
-  ?en :encompassedBy ?con ;
-      :percent ?percent .
-  ?con rdf:type :Continent ;
-       :name ?continent .
-  #FILTER (?continent="Europe")  .
-  #FILTER (?population > 20000000) .
-  FILTER (?percent >= 50 ) .
-  FILTER (?cityPop > 5000000)
-}
-`;
-
+  const [query, setQuery] = useState<string>(initialString);
+//   const { sparqlCode, setSparqlCode, sparqlResult, setSparqlResult,
+    // sparqlOriginalResult, setSparqlOriginalResult } = useContext(SparqlContext); // 使用 useContext 获取 sparqlCode 和 setSparqlCode
   const [searchParams, setSearchParams] = useSearchParams();
   const [ConceptualModelInfo, setConceptualModelInfo] =
     useState<ConceptialModelInfoProps>({});
   const [fullLoading, setFullLoading] = useState(false);
-  const tabListStorageKey = 'tabList_graphLD';
-  const tabListStore = localStorage.getItem(tabListStorageKey) || '';
-  const [tabList, setTabList] = useState<string[]>(() => {
-    if (isJson(tabListStore) && JSON.parse(tabListStore).length > 0) {
-      const tabListParsed = JSON.parse(tabListStore);
-      return tabListParsed;
-    } else {
-      return [initialString];
-    }
-  });
-  const [selectedTab, setSelectedTab] = useState(() => {
-    if (isJson(tabListStore) && JSON.parse(tabListStore).length > 0) {
-      const tabListParsed = JSON.parse(tabListStore);
-      return tabListParsed.length - 1;
-    } else {
-      return 0;
-    }
-  });
-  const userQueryStorageKey = 'user_query_latest_graphLD';
-  const user_query_latest = localStorage.getItem(userQueryStorageKey);
-  const [query, setQuery] = useState<string>(() => {
-    if (isJson(tabListStore) && JSON.parse(tabListStore).length > 0) {
-      const tabListParsed = JSON.parse(tabListStore);
-      return tabListParsed[tabListParsed.length - 1];
-    } else {
-      const toSet = JSON.stringify([initialString]);
-      localStorage.setItem(tabListStorageKey, toSet);
-      return initialString;
-    }
-  });
 
   const [columns, setColumns] = useState([]);
   const [dataSource, setDataSource] = useState([]);
@@ -314,14 +192,691 @@ WHERE {
     heatmap: 100,
   });
 
-  useEffect(() => {
-    // initialise tabList
-    const tabListStoreL = localStorage.getItem(tabListStorageKey) || '[]';
-    if (JSON.parse(tabListStoreL).length === 0) {
-      localStorage.setItem(tabListStorageKey, JSON.stringify([initialString]));
-    }
-  }, []);
+  const increaseFontSize = () => {
+    setFontSize((prevSize) => Math.min(prevSize + 2, 24)); // Increase font size, max 24px
+  };
+  
+  const decreaseFontSize = () => {
+    setFontSize((prevSize) => Math.max(prevSize - 2, 8)); // Decrease font size, min 8px
+  };
 
+  const pattern1 = `
+    <block type="sparql_prefix" x="10" y="10">
+      <mutation prefixes="4"></mutation>
+      <field name="PREFIX_LABEL0">rdf</field>
+      <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+      <field name="PREFIX_LABEL1">rdfs</field>
+      <field name="URI1">http://www.w3.org/2000/01/rdf-schema#</field>
+      <field name="PREFIX_LABEL2">owl</field>
+      <field name="URI2">http://www.w3.org/2002/07/owl#</field>
+      <field name="PREFIX_LABEL3"> </field>
+      <field name="URI3">http://www.semwebtech.org/mondial/10/meta#</field>
+      <next>
+        <block type="sparql_select">
+          <value name="VARIABLES">
+            <block type="sparql_variable_select">
+              <field name="VARIABLE">name</field>
+              <value name="NEXT_VARIABLE">
+                <block type="sparql_variable_select">
+                  <field name="VARIABLE">population</field>
+                </block>
+              </value>
+            </block>
+          </value>
+          <statement name="WHERE">
+            <block type="sparql_class_with_property">
+              <value name="CLASS_NAME">
+                <block type="sparql_variable_confirmed">
+                  <field name="VARIABLE">country</field>
+                </block>
+              </value>
+              <statement name="PROPERTIES">
+                <block type="sparql_properties_in_class">
+                  <value name="INPUT">
+                    <block type="sparql_variable_type">
+                      <field name="VARIABLE2">type</field>
+                      <value name="TYPE1">
+                        <block type="sparql_prefix_list">
+                          <field name="PREFIX">prefix_0</field>
+                        </block>
+                      </value>
+                      <value name="TYPE2">
+                        <block type="sparql_variable_typename">
+                          <field name="VARIABLE">Country</field>
+                        </block>
+                      </value>
+                    </block>
+                  </value>
+                  <next>
+                    <block type="sparql_properties_in_class">
+                      <value name="INPUT">
+                        <block type="sparql_variable_type">
+                          <field name="VARIABLE2">name</field>
+                          <value name="TYPE2">
+                            <block type="sparql_variable_varname">
+                              <field name="VARIABLE">?name</field>
+                            </block>
+                          </value>
+                        </block>
+                      </value>
+                      <next>
+                        <block type="sparql_properties_in_class">
+                          <value name="INPUT">
+                            <block type="sparql_variable_type">
+                              <field name="VARIABLE2">population</field>
+                              <value name="TYPE2">
+                                <block type="sparql_variable_varname">
+                                  <field name="VARIABLE">?population</field>
+                                </block>
+                              </value>
+                            </block>
+                          </value>
+                        </block>
+                      </next>
+                    </block>
+                  </next>
+                </block>
+              </statement>
+            </block>
+          </statement>
+          <next>
+            <block type="sparql_condition">
+              <statement name="CONDITIONS">
+                <block type="sparql_orderby">
+                  <field name="ORDER">ASC</field>
+                  <field name="VARIABLE">population</field>
+                </block>
+              </statement>
+            </block>
+          </next>
+        </block>
+      </next>
+    </block>
+  `;
+  
+  const patterns = [];
+  
+  const getToolboxXML = () => {
+    return `
+      <xml xmlns="https://developers.google.com/blockly/xml">
+  
+        <category name="Examples" categorystyle="examples_category">
+
+pattern 3
+
+  <block type="sparql_prefix" x="10" y="10">
+    <mutation prefixes="2"></mutation>
+    <field name="PREFIX_LABEL0">rdf</field>
+    <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+    <field name="PREFIX_LABEL1"> </field>
+    <field name="URI1">http://www.semwebtech.org/mondial/10/meta#</field>
+    <next>
+      <block type="sparql_select">
+        <value name="VARIABLES">
+          <block type="sparql_variable_select">
+            <field name="VARIABLE">?continent</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select">
+                <field name="VARIABLE">?country</field>
+                <value name="NEXT_VARIABLE">
+                  <block type="sparql_variable_select">
+                    <field name="VARIABLE">?population</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="WHERE">
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">c</field>
+              </block>
+            </value>
+            <statement name="PROPERTIES">
+              <block type="sparql_properties_in_class">
+                <value name="INPUT">
+                  <block type="sparql_variable_type">
+                    <field name="VARIABLE2">type</field>
+                    <value name="TYPE1">
+                      <block type="sparql_prefix_list">
+                        <field name="PREFIX">prefix_0</field>
+                      </block>
+                    </value>
+                    <value name="TYPE2">
+                      <block type="sparql_variable_typename">
+                        <field name="VARIABLE">Country</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">name</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">country</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">population</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">population</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">encompassedByInfo</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">en</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="sparql_class_with_property">
+                <value name="CLASS_NAME">
+                  <block type="sparql_variable_confirmed">
+                    <field name="VARIABLE">en</field>
+                  </block>
+                </value>
+                <statement name="PROPERTIES">
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">encompassedBy</field>
+                        <value name="TYPE1">
+                          <block type="sparql_prefix_list">
+                            <field name="PREFIX">prefix_1</field>
+                          </block>
+                        </value>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">con</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">percent</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">percent</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="sparql_class_with_property">
+                    <value name="CLASS_NAME">
+                      <block type="sparql_variable_confirmed">
+                        <field name="VARIABLE">con</field>
+                      </block>
+                    </value>
+                    <statement name="PROPERTIES">
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">type</field>
+                            <value name="TYPE1">
+                              <block type="sparql_prefix_list">
+                                <field name="PREFIX">prefix_0</field>
+                              </block>
+                            </value>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_typename">
+                                <field name="VARIABLE">Continent</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">name</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">continent</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+
+
+oneMany
+
+  <block type="sparql_prefix" x="10" y="-390">
+    <mutation prefixes="4"></mutation>
+    <field name="PREFIX_LABEL0">rdf</field>
+    <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+    <field name="PREFIX_LABEL1">rdfs</field>
+    <field name="URI1">http://www.w3.org/2000/01/rdf-schema#</field>
+    <field name="PREFIX_LABEL2">owl</field>
+    <field name="URI2">http://www.w3.org/2002/07/owl#</field>
+    <field name="PREFIX_LABEL3"> </field>
+    <field name="URI3">http://www.semwebtech.org/mondial/10/meta#</field>
+    <next>
+      <block type="sparql_select">
+        <value name="VARIABLES">
+          <block type="sparql_variable_select">
+            <field name="VARIABLE">?country</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select">
+                <field name="VARIABLE">?city</field>
+                <value name="NEXT_VARIABLE">
+                  <block type="sparql_variable_select">
+                    <field name="VARIABLE">?cityPop</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="WHERE">
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">ct</field>
+              </block>
+            </value>
+            <statement name="PROPERTIES">
+              <block type="sparql_properties_in_class">
+                <value name="INPUT">
+                  <block type="sparql_variable_type">
+                    <field name="VARIABLE2">type</field>
+                    <value name="TYPE1">
+                      <block type="sparql_prefix_list">
+                        <field name="PREFIX">prefix_0</field>
+                      </block>
+                    </value>
+                    <value name="TYPE2">
+                      <block type="sparql_variable_typename">
+                        <field name="VARIABLE">City</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">name</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">city</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">cityIn</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">c</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">population</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">cityPop</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="sparql_class_with_property">
+                <value name="CLASS_NAME">
+                  <block type="sparql_variable_confirmed">
+                    <field name="VARIABLE">c</field>
+                  </block>
+                </value>
+                <statement name="PROPERTIES">
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">type</field>
+                        <value name="TYPE1">
+                          <block type="sparql_prefix_list">
+                            <field name="PREFIX">prefix_0</field>
+                          </block>
+                        </value>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_typename">
+                            <field name="VARIABLE">Country</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">name</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">country</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">population</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">countryPop</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="sparql_filter">
+                    <value name="FILTER_CONDITION">
+                      <block type="sparql_comparison">
+                        <field name="OPERATOR">&gt;</field>
+                        <value name="OPERAND1">
+                          <block type="sparql_variable_select">
+                            <field name="VARIABLE">?cityPop</field>
+                          </block>
+                        </value>
+                        <value name="OPERAND2">
+                          <block type="sparql_number">
+                            <field name="NUMBER">5000000</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_filter">
+                        <value name="FILTER_CONDITION">
+                          <block type="sparql_comparison">
+                            <field name="OPERATOR">&gt;</field>
+                            <value name="OPERAND1">
+                              <block type="sparql_variable_select">
+                                <field name="VARIABLE">?countryPop</field>
+                              </block>
+                            </value>
+                            <value name="OPERAND2">
+                              <block type="sparql_number">
+                                <field name="NUMBER">20000000</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+
+
+    
+
+
+        <block type="sparql_filter">
+            <value name="FILTER_CONDITION">
+            <block type="sparql_comparison">
+                <field name="OPERATOR">&gt;</field>
+                <value name="OPERAND1">
+                <block type="sparql_variable_varname">
+                    <field name="VARIABLE">?cityPop</field>
+                </block>
+                </value>
+                <value name="OPERAND2">
+                <block type="sparql_number">
+                    <field name="NUMBER">5000000</field>
+                </block>
+                </value>
+            </block>
+            </value>
+        </block>
+
+          ${pattern1}
+
+        </category>
+  
+        <category name="Basics" categorystyle="basics_category">
+          <block type="sparql_string"></block>
+          <block type="sparql_number"></block>
+          <block type="sparql_braces"></block>
+        </category>
+        <category name="Math" categorystyle="math_category">
+          <block type="sparql_add"></block>
+          <block type="sparql_subtract"></block>
+          <block type="sparql_multiply"></block>
+          <block type="sparql_divide"></block>
+          <block type="sparql_comparison"></block>
+        </category>
+        <category name="Logic" categorystyle="logic_category">
+          <block type="sparql_if"></block>
+          <block type="sparql_and"></block>
+          <block type="sparql_or"></block>
+          <block type="sparql_not"></block>
+        </category>
+        <category name="Query" categorystyle="query_category">
+          <block type="sparql_prefix" >
+          <mutation prefixes="0"></mutation>
+          <next>
+            <block type="sparql_select" ></block>
+          </next>
+          </block>
+          <block type="sparql_condition">
+          <statement name="CONDITIONS">
+            <block type="sparql_groupby">
+              <field name="VARIABLE">variable</field>
+              <next>
+                <block type="sparql_having">
+                  <value name="HAVING_CONDITION">
+                    <block type="sparql_count">
+                      <value name="VARIABLE">
+                        <block type="sparql_multiply">
+                          <value name="FACTOR1">
+                            <block type="sparql_variable_varname">
+                              <field name="VARIABLE">default</field>
+                            </block>
+                          </value>
+                          <value name="FACTOR2">
+                            <block type="sparql_number">
+                              <field name="NUMBER">1</field>
+                            </block>
+                          </value>
+                        </block>
+                      </value>
+                    </block>
+                  </value>
+                  <next>
+                    <block type="sparql_orderby">
+                      <field name="ORDER">ASC</field>
+                      <field name="VARIABLE">variable</field>
+                      <next>
+                        <block type="sparql_limit">
+                          <value name="LIMIT">
+                            <block type="sparql_number">
+                              <field name="NUMBER">0</field>
+                            </block>
+                          </value>
+                          <next>
+                            <block type="sparql_offset">
+                              <value name="OFFSET">
+                                <block type="sparql_number">
+                                  <field name="NUMBER">0</field>
+                                </block>
+                              </value>
+                            </block>
+                          </next>
+                        </block>
+                      </next>
+                    </block>
+                  </next>
+                </block>
+              </next>
+            </block>
+          </statement>
+        </block>
+          
+          <block type="sparql_prefix"></block>
+          <block type="sparql_select"></block>
+          <block type="sparql_condition"></block>
+          <block type="sparql_distinct_reduced"></block>
+          <block type="sparql_filter"></block>
+          <block type="sparql_existence"></block>
+          <block type="sparql_optional"></block>
+        </category>
+        <category name="Condition" categorystyle="condition_category">
+          <block type="sparql_orderby"></block>
+          <block type="sparql_groupby"></block>
+          <block type="sparql_having"></block>
+          <block type="sparql_limit"></block>
+          <block type="sparql_offset"></block>
+          <block type="sparql_union"></block>
+        </category>
+        <category name="Variable" categorystyle="variable_category">
+        // used in classname block, properties
+          <block type="sparql_properties_in_class">
+            <value name="INPUT">
+              <block type="sparql_variable_type">
+                <field name="VARIABLE2">gender</field>
+                <value name="TYPE2">
+                  <block type="sparql_variable_varname">
+                    <field name="VARIABLE">?name</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+          
+          // used in classname block, types
+          <block type="sparql_properties_in_class">
+            <value name="INPUT">
+              <block type="sparql_variable_type" >
+                <field name="VARIABLE2">type</field>
+                <value name="TYPE1">
+                  <block type="sparql_prefix_list">
+                    <field name="PREFIX">default</field>
+                  </block>
+                </value>
+                <value name="TYPE2">
+                  <block type="sparql_variable_typename">
+                    <field name="VARIABLE">Person</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+  
+        // classname block with a custom name
+        <block type="sparql_class_with_property">
+          <value name="CLASS_NAME">
+            <block type="sparql_variable_confirmed">
+              <field name="VARIABLE">custom</field>
+            </block>
+          </value>
+        </block>
+          <block type="sparql_class_with_property"></block>
+          <block type="sparql_properties_in_class"></block>
+          <block type="sparql_prefix_list"></block>
+          <block type="sparql_variable_type"></block>
+          <block type="sparql_variable_select"></block>
+          <block type="sparql_variable_typename"></block>
+          <block type="sparql_variable_varname"></block>
+          <block type="sparql_variable_confirmed"></block>
+          <block type="sparql_bind"></block>
+          <block type="sparql_as"></block>
+        </category>
+        <category name="Aggregate" categorystyle="aggregate_category">
+          <block type="sparql_avg"></block>
+          <block type="sparql_count"></block>
+          <block type="sparql_max"></block>
+          <block type="sparql_min"></block>
+          <block type="sparql_sum"></block>
+        </category>
+  
+        <category name="Stored Blocks" categorystyle="stored_blocks_category">
+        ${storedBlocks.map((blockXml) => blockXml.replace(/<\/?xml[^>]*>/g, '')).join('')}
+      </category>
+    </xml>`;
+  };
+  
+
+  
+  useEffect(() => {
+    console.log('Current sparqlCode:', sparqlCode);
+  }, [sparqlCode]);
+  
   useEffect(() => {
     if (repo_graphDB && db_prefix_URL) {
       setFullLoading(true);
@@ -330,7 +885,9 @@ WHERE {
   }, [repo_graphDB, db_prefix_URL]);
 
   useEffect(() => {
+    console.log('searchParams: ', searchParams);
     if (searchParams.get('query')) {
+      console.log('searchParams.get(query): ', searchParams.get('query'));
       setQuery(searchParams.get('query') || initialString);
        
       const repo = searchParams.get('repo_graphDB') || '';
@@ -1482,34 +2039,6 @@ WHERE {
       ratings.groupedColumn += 15;
     }
 
-    // const relationshipCheck = await checkRelationshipsSchemaAnalysis(CLASSES);
-    // if (relationshipCheck.manyManyRelationships.length > 0) {
-    //   let message = 'Many-Many Relationships detected between Classes: \n';
-    //   for (const r of relationshipCheck.manyManyRelationships) {
-    //     message += `[${r.class1} - ${r.class2}] \n`;
-    //   }
-    //   setManyManyRInfo(message);
-    //   setShowManyManyRelationInfo(true);
-    // }
-    // if (relationshipCheck.oneManyRelationships.length > 0) {
-    //   let message = 'One-Many Relationships detected between Classes: \n';
-    //   for (const r of relationshipCheck.oneManyRelationships) {
-    //     message += `[${r.class1} - ${r.class2}] \n`;
-    //   }
-    //   setOneManyRInfo(message);
-    //   setShowOneManyRelationInfo(true);
-    // }
-
-    // const MMClasses = relationshipCheck.manyManyRelationships;
-
-    // const manyManyRInDataResult = checkForManyManyRDataAnalysis(
-    //   vars_head,
-    //   var_to_range_mapping,
-    //   dataResults,
-    //   all_var_to_class,
-    //   MMClasses,
-    // );
-
     return ratings;
   }
 
@@ -1595,8 +2124,6 @@ WHERE {
         query,
         inferredDataQuery,
       );
-
-      // console.log('queryRes', queryRes);
 
       const head = queryRes.head.vars;
       const results_bindings = queryRes.results.bindings;
@@ -1693,54 +2220,6 @@ WHERE {
     defaultAutocompletions,
   );
 
-  const onChangeCodeArea = (value: string, viewUpdate: any) => {
-    const splitUpper = value.split('WHERE');
-    const splitLower = value.split('where');
-    if (splitUpper.length == 2 || splitLower.length == 2) {
-      const varsDirty = splitUpper.length == 2 ? splitUpper[0] : splitLower[0];
-      const varsClean =
-        varsDirty.split('SELECT').length == 2
-          ? varsDirty.split('SELECT')[1]
-          : varsDirty.split('select')[1];
-      const varsList = varsClean
-        ? varsClean.split(' ').filter((v: string) => v.length > 0)
-        : [];
-
-      if (varsList.length > 0) {
-        const varsAutocompletion = varsList.map((v: string) => {
-          return {
-            label: v,
-            type: 'variable',
-          };
-        });
-        setCompletionsContent([...completionsContent, ...varsAutocompletion]);
-      }
-    }
-
-    const newTabList = localStorage.getItem(tabListStorageKey);
-    const tabListParsed = JSON.parse(newTabList || '[]');
-    tabListParsed[selectedTab] = value;
-
-    setTabList(tabListParsed);
-    setQuery(value);
-  };
-
-  useEffect(() => {
-    localStorage.setItem(tabListStorageKey, JSON.stringify(tabList));
-  }, [tabList, selectedTab]);
-
-  function closeTab(index: number) {
-    if (tabList.length > 1) {
-      const newTabList = tabList.filter((_, i) => i !== index);
-      setTabList(newTabList);
-      setSelectedTab(selectedTab - 1);
-      setQuery(newTabList[selectedTab - 1]);
-      closeAllWarnings();
-      setDataSource([]);
-      setRecommendations([]);
-    }
-  }
-
   // side effects for generating autocompletions content
   useEffect(() => {
     // generate completions for Functional Data Properties
@@ -1791,19 +2270,7 @@ WHERE {
     }
 
     setCompletionsContent([...completionsContent, ...completions]);
-  }, [ConceptualModelInfo, query]);
-
-  function myCompletions(context: CompletionContext) {
-    let before = context.matchBefore(/(\:|\?|\w)+/);
-    // If completion wasn't explicitly started and there
-    // is no word before the cursor, don't open completions.
-    if (!context.explicit && !before) return null;
-    return {
-      from: before ? before.from : context.pos,
-      options: completionsContent,
-      validFor: /^\w*$/,
-    };
-  }
+  }, [ConceptualModelInfo, sparqlCode]); // changed here
 
   const handleCopyPrefixesReference = () => {
     const prefixes = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -1833,163 +2300,6 @@ PREFIX : <${db_prefix_URL}>`;
       }
     }
   };
-
-  const exampleQueryList = [
-    initialString,
-    f3a,
-    f3b,
-    year_pop,
-    border_length,
-    country_city_pop,
-    conti_country_city_pop,
-  ];
-  const exampleQueryFeatures = [
-    'Countries with their population count',
-    'Countries with their inflation rate and unemployment rate, key missing in query header',
-    'Countries with their continent and population count',
-    'Historical population statictics through time',
-    'Countries with neighbouring countries and border length',
-    'Countries with their cities and population count',
-    'Continents with their countries and cities and population count',
-  ];
-  const exampleQueriesTitle = [
-    'Patten1',
-    'Pattern2',
-    'Pattern3',
-    'Pattern4',
-    'Pattern5',
-    'One-Many',
-    'Many-Many',
-  ];
-
-  function exampleQueries() {
-    return (
-      <Grid sx={{ marginBottom: 2 }}>
-        Example querys:
-        {exampleQueryList.map((q, index) => {
-          return (
-            <Tooltip
-              title={exampleQueryFeatures[index]}
-              arrow
-              placement="bottom"
-            >
-              <Button
-                variant="outlined"
-                size="small"
-                color={query == q ? 'success' : 'primary'}
-                onClick={() => {
-                  const newTabList = localStorage.getItem(tabListStorageKey);
-                  const tabListParsed = JSON.parse(newTabList || '[]');
-                  tabListParsed[selectedTab] = q;
-                  setTabList(tabListParsed);
-                  setQuery(q);
-                  setDataSource([]);
-                  setRecommendations([]);
-                  setExcludedRecommendations([]);
-                  closeAllWarnings();
-                }}
-                style={{
-                  textTransform: 'none',
-                  marginLeft: 4,
-                }}
-              >
-                {/* query {index + 1} */}
-                {exampleQueriesTitle[index]}
-              </Button>
-            </Tooltip>
-          );
-        })}
-      </Grid>
-    );
-  }
-  function a11yProps(index: number) {
-    return {
-      id: `simple-tab-${index}`,
-      'aria-controls': `simple-tabpanel-${index}`,
-    };
-  }
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    const newQuery = tabList[newValue];
-    setQuery(newQuery);
-    setSelectedTab(newValue);
-    setDataSource([]);
-    setRecommendations([]);
-    closeAllWarnings();
-  };
-
-  function editorTabs() {
-    return (
-      <Grid
-        container
-        flexDirection="row"
-        justifyContent="flex-end"
-        sx={{ borderBottom: 1, borderColor: 'divider' }}
-      >
-        <Grid xs={12}>
-          <Tabs
-            value={selectedTab}
-            onChange={handleTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{ backgroundColor: '#fff' }}
-          >
-            {tabList.length > 0 ? (
-              tabList.map((_: any, index: number) => {
-                return (
-                  <Tab
-                    sx={{ textTransform: 'none' }}
-                    value={index}
-                    label={`Tab ${index + 1}`}
-                    {...a11yProps(0)}
-                  />
-                );
-              })
-            ) : (
-              <Tab label={`Tab 1`} {...a11yProps(0)} />
-            )}
-            <IconButton
-              color="primary"
-              size="large"
-              onClick={() => {
-                const newQuery = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX : <${db_prefix_URL}>`;
-                setTabList([...tabList, newQuery]);
-                setQuery(newQuery);
-                setSelectedTab(tabList.length);
-                closeAllWarnings();
-                setDataSource([]);
-                setRecommendations([]);
-              }}
-            >
-              <AddCircleOutlineIcon />
-            </IconButton>
-          </Tabs>
-        </Grid>
-        <Grid id="closeTabButton">
-          <Button
-            variant="outlined"
-            color="error"
-            sx={{
-              textTransform: 'none',
-              backgroundColor: '#fff',
-              '&:hover': {
-                color: '#fff',
-                backgroundColor: '#d32f2f',
-              },
-            }}
-            size="small"
-            endIcon={<CloseIcon />}
-            onClick={() => closeTab(selectedTab)}
-            disabled={tabList.length <= 1}
-          >
-            Close this Tab
-          </Button>
-        </Grid>
-      </Grid>
-    );
-  }
 
   function PrefixReference() {
     return (
@@ -2330,7 +2640,7 @@ PREFIX : <${db_prefix_URL}>`;
   const [showConfigPanel, setShowConfigPanel] = useState(false);
 
   function handleCloseConfigPanel() {
-    handleQuery(query);
+    handleQuery(sparqlCode);
     setShowConfigPanel(false);
   }
 
@@ -2408,137 +2718,6 @@ PREFIX : <${db_prefix_URL}>`;
     );
   }
 
-  async function accuracyTesting() {
-    const initialString = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    PREFIX : <http://www.semwebtech.org/mondial/10/meta#>
-          
-    SELECT ?name ?population
-    WHERE {
-      ?country rdf:type :Country ;
-               :name ?name ;
-               :population ?population .
-    } ORDER BY DESC(?population) LIMIT 100`;
-
-    const f3a = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX : <${db_prefix_URL}>
-    SELECT ?inflation ?unemployment WHERE {
-        ?c rdf:type :Country ;
-           :inflation ?inflation ;
-           :unemployment ?unemployment .
-    }`;
-
-    const f3b = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX : <${db_prefix_URL}>
-    SELECT ?continent ?carcode ?population 
-    WHERE {
-        ?c rdf:type :Country ;
-           :carCode ?carcode ;
-           :population ?population ;
-           :encompassedByInfo ?en .
-        ?en :encompassedBy ?con ;
-        :percent ?percent .
-        ?con rdf:type :Continent ;
-             :name ?continent .
-        FILTER ( ?percent > 50)
-    } LIMIT 40`;
-
-    const f3c = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX : <http://www.semwebtech.org/mondial/10/meta#>
-    SELECT  ?year  ?population ?country
-    WHERE {
-        ?c rdf:type :Country ; 
-           :name ?country ;
-           :encompassedByInfo ?en .
-        ?py rdf:type :PopulationCount ;
-            :year ?year;
-            :value ?population .
-        ?c 	:hadPopulation ?py .
-    } LIMIT 100`;
-
-    const f3d = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX : <${db_prefix_URL}>
-    SELECT ?country1 ?country2 ?length
-    WHERE {
-        ?b rdf:type :Border ;
-           :isBorderOf ?c1 ;
-           :isBorderOf ?c2 ;
-           :length ?length .
-      ?c1 rdf:type :Country ;
-          :carCode ?country1 .
-      ?c2 rdf:type :Country ;
-          :carCode ?country2 .
-      # Filter conditions
-      FILTER (?country1<?country2)
-    } LIMIT 100`;
-    const queryList = [initialString, f3a, f3b, f3c, f3d];
-    const expectedVisList = [
-      ['bar', 'column', 'wordClouds', 'pie', 'choroplethMap'],
-      ['scatter'],
-      ['treemap', 'sunburst', 'circlePacking'],
-      [
-        'multiLine',
-        // 'stackedBar',
-        // 'stackedColumn',
-        // 'groupedBar',
-        // 'groupedColumn',
-      ],
-      ['network', 'chord', 'sankey', 'heatmap'],
-    ];
-
-    const results = [];
-    for (const q of queryList) {
-      results.push(await handleQuery(q));
-    }
-
-    const recommendations = results.map((r: any) => {
-      return r.recommendations;
-    });
-
-    const failedResults = [];
-
-    for (let i = 0; i < recommendations.length; i++) {
-      const expectedVis = expectedVisList[i].map((v) => {
-        // @ts-ignore
-        return ChartType_mapping[v];
-      });
-      const actualVis = recommendations[i].map((r: any) => {
-        return r.chart;
-      });
-
-      console.log(`Query ${i} expected vis`, expectedVis);
-      console.log(`Query ${i} actual vis`, actualVis);
-
-      const missingVis = expectedVis.filter((v) => {
-        return !actualVis.includes(v);
-      });
-
-      if (missingVis.length > 0) {
-        failedResults.push({
-          query: queryList[i],
-          expectedVisualisation: expectedVis,
-          actualVisualisation: actualVis,
-          missingVisualisation: missingVis,
-        });
-      }
-
-      if (missingVis.length === 0) {
-        console.log(`Query ${i} passed accuracy test`);
-      } else {
-        console.log(
-          `Query ${i} failed accuracy test, please check test report`,
-        );
-      }
-    }
-
-    if (failedResults.length === 0) {
-      console.log('All tests passed');
-    } else {
-      console.log('Failed tests', failedResults);
-    }
-  }
-
   const [showPrefixReference, setShowPrefixReference] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const canBeOpen_prefixRef = showPrefixReference && Boolean(anchorEl);
@@ -2550,32 +2729,277 @@ PREFIX : <${db_prefix_URL}>`;
   const id_sc = canBeOpen_sc ? 'simple-popover' : undefined;
 
 
+  // =================================== =================================== ===================================
+
+
+
+  const saveWorkspaceToLocalStorage = () => {
+    if (workspaceRef.current) {
+      const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
+      const xmlText = Blockly.Xml.domToPrettyText(xml);
+      localStorage.setItem('currentWorkspace', xmlText);
+    }
+  };
+
+  const loadWorkspaceFromLocalStorage = () => {
+    const savedWorkspace = localStorage.getItem('currentWorkspace');
+    if (savedWorkspace && workspaceRef.current) {
+      const xml = Blockly.utils.xml.textToDom(savedWorkspace);
+      Blockly.Xml.domToWorkspace(xml, workspaceRef.current);
+    }
+  };
+
+  useEffect(() => {
+    const storedBlocksStr = localStorage.getItem('storedBlocks');
+    const savedBlocks = storedBlocksStr ? JSON.parse(storedBlocksStr) : [];
+    setStoredBlocks(savedBlocks);
+  }, []);
+  
+
+  useEffect(() => {
+    if (blocklyRef.current && !workspaceRef.current) {
+      workspaceRef.current = Blockly.inject(blocklyRef.current, {
+        toolbox: getToolboxXML(),
+        grid: {
+          spacing: 20,
+          length: 3,
+          colour: '#ccc',
+          snap: true
+        },
+        zoom: {
+          controls: true,
+          wheel: true,
+          startScale: 1.0,
+          maxScale: 3,
+          minScale: 0.3,
+          scaleSpeed: 1.2
+        },
+        move: {
+          scrollbars: true,
+          drag: true,
+          wheel: true
+        },
+        theme: myTheme
+      });
+
+      loadWorkspaceFromLocalStorage();
+      workspaceRef.current.addChangeListener(() => {
+        saveWorkspaceToLocalStorage();
+        generateSparqlCode(); 
+      });
+    }
+    if (workspaceRef.current) {
+      workspaceRef.current.updateToolbox(getToolboxXML());
+    }
+    generateSparqlCode();
+
+    return () => {
+      if (workspaceRef.current) {
+        workspaceRef.current.dispose();
+        workspaceRef.current = null;
+      }
+    };
+  }, [storedBlocks]);
+
+  const saveWorkspaceToStoredBlocks = () => {
+    if (workspaceRef.current) {
+      const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
+      const xmlText = Blockly.Xml.domToPrettyText(xml);
+      const updatedBlocks = [...storedBlocks, xmlText];
+      setStoredBlocks(updatedBlocks);
+      localStorage.setItem('storedBlocks', JSON.stringify(updatedBlocks));
+      console.log('Workspace saved to Stored Blocks:', xmlText);
+    }
+  };
+
+  const clearStoredBlocks = () => {
+    setStoredBlocks([]);
+    localStorage.setItem('storedBlocks', JSON.stringify([]));
+  };
+
+//   const generateSparqlCode = () => {
+//     if (workspaceRef.current) {
+//       localStorage.setItem('classNames', JSON.stringify({}));
+//       const topBlocks = workspaceRef.current.getTopBlocks(true);
+//       let code = '';
+//       topBlocks.forEach(block => {
+//         let currentBlock: Blockly.BlockSvg | null = block;
+//         while (currentBlock) {
+//           const blockCode = Sparql.blockToCode(currentBlock);
+//           code += Array.isArray(blockCode) ? blockCode[0] : blockCode;
+//           currentBlock = currentBlock.nextConnection && currentBlock.nextConnection.targetBlock();
+//         }
+//       });
+//       setSparqlCode(code);
+//     }
+//   };
+
+  const generateSparqlCode = () => {
+    if (workspaceRef.current) {
+      localStorage.setItem('varNames', JSON.stringify({}));
+      localStorage.setItem('classNames', JSON.stringify({}));
+      const topBlocks = workspaceRef.current.getTopBlocks(true);
+      let code = '';
+      topBlocks.forEach(block => {
+        let currentBlock: Blockly.BlockSvg | null = block;
+        while (currentBlock) {
+          const blockCode = Sparql.blockToCode(currentBlock);
+          code += Array.isArray(blockCode) ? blockCode[0] : blockCode;
+          const nextBlock: Blockly.BlockSvg | null = currentBlock.nextConnection 
+            ? currentBlock.nextConnection.targetBlock() as Blockly.BlockSvg | null 
+            : null;
+          currentBlock = nextBlock;
+        }
+      });
+      setSparqlCode(code);
+    }
+  };
+  
+  
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(sparqlCode).then(() => {
+      setShowCopyMessage(true);
+      setTimeout(() => {
+        setShowCopyMessage(false);
+      }, 1000);
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+    });
+  };
+
+  const handleRefresh = () => {
+    if (workspaceRef.current) {
+      const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
+      Blockly.Xml.clearWorkspaceAndLoadFromXml(xml, workspaceRef.current);
+    }
+  };
+
+  Blockly.utils.colour.setHsvSaturation(0.25);
+  Blockly.utils.colour.setHsvValue(0.75);
+
 
   return (
-    <Accordion defaultExpanded>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography variant="h5">SPARQL Query</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
       <Grid style={{ margin: 10 }}>
       <Grid container>
         {PrefixReference()}
         {KeyboardShortcut()}
       </Grid>
 
-      {exampleQueries()}
-      {editorTabs()}
-      <CodeMirror
-        value={query}
-        minHeight="300px"
-        maxHeight="500px"
-        extensions={[
-          StreamLanguage.define(sparql),
-          autocompletion({ override: [myCompletions] }),
-          customIconsTheme,
-        ]}
-        onChange={onChangeCodeArea}
-      />
+      <div style={{ display: 'flex', height: '80vh', position: 'relative' }}>
+        <div ref={blocklyRef} style={{ flex: 2, minWidth: '100%' }} />
+        <button onClick={handleRefresh} style={{
+        position: 'absolute',
+        top: '160px',
+        right: '20px',
+        width: '50px',
+        height: '50px',
+        backgroundColor: '#6FBF8E',
+        borderRadius: '50%',
+        border: 'none',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+        cursor: 'pointer',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    }}>
+        Refresh
+    </button>
+        <button onClick={saveWorkspaceToStoredBlocks} style={{
+        position: 'absolute',
+        top: '20px',
+        right: '20px',
+        width: '50px',
+        height: '50px',
+        backgroundColor: '#6FBF8E',
+        borderRadius: '50%',
+        border: 'none',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+        cursor: 'pointer',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+        }}>
+        Save
+        </button>
+        <button onClick={clearStoredBlocks} style={{
+        position: 'absolute',
+        top: '90px',
+        right: '20px',
+        width: '50px',
+        height: '50px',
+        backgroundColor: '#ff4d4d',
+        borderRadius: '50%',
+        border: 'none',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+        cursor: 'pointer',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+        }}>
+        Clear
+        </button>
+    </div>
+
+{/* </Grid>
+<Grid item xs={12} md={4}> */}
+
+    <div style={{
+        width: '100%',
+        backgroundColor: '#ffffff',
+        borderLeft: '2px solid #ccc',
+        padding: '10px',
+        boxSizing: 'border-box',
+        overflowY: 'auto',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+        borderRadius: '10px'
+    }}>
+        {showCopyMessage && (
+        <div style={{
+            position: 'absolute',
+            bottom: '80px',
+            right: '20px',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            padding: '10px',
+            borderRadius: '5px',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+        }}>
+            Copied to clipboard!
+        </div>
+        )}
+        <button onClick={copyToClipboard} style={{
+        padding: '10px',
+        position: 'absolute',
+        bottom: '15px',
+        right: '20px',
+        backgroundColor: '#6FBF8E',
+        border: 'none',
+        borderRadius: '10px',
+        color: 'white',
+        fontWeight: 'bold',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+        cursor: 'pointer'
+        }}>
+        Copy to Clipboard
+        </button>
+        <pre style={{
+        flex: 1,
+        overflow: 'auto',
+        backgroundColor: '#f0f0f0',
+        border: '1px solid #ccc',
+        marginTop: '10px',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.25)',
+        borderRadius: '10px',
+        padding: '10px',
+        textAlign: 'left', 
+        whiteSpace: 'pre-wrap',
+        maxHeight: '400px',
+        overflowY: 'auto'
+        }}>
+        {sparqlCode}
+        </pre>
+    </div>
       <Grid container spacing={2}>
         <Grid item xs={12}>
           {oneManyRelationshipInfo()}
@@ -2594,7 +3018,7 @@ PREFIX : <${db_prefix_URL}>`;
           <LoadingButton
             variant="contained"
             onClick={() => {
-              handleQuery(query);
+              handleQuery(sparqlCode); 
             }}
             loading={loading}
             loadingPosition="end"
@@ -2616,7 +3040,7 @@ PREFIX : <${db_prefix_URL}>`;
                   value={inferredDataQuery}
                   onClick={() => {
                     toggleInferredDataQuery();
-                    handleQuery(query);
+                    handleQuery(sparqlCode);
                   }}
                 />
               }
@@ -2624,24 +3048,6 @@ PREFIX : <${db_prefix_URL}>`;
               labelPlacement="start"
             />
           </FormGroup>
-
-          {process.env.NODE_ENV == 'development' && (
-            <LoadingButton
-              variant="outlined"
-              color="success"
-              onClick={accuracyTesting}
-              loading={loading}
-              loadingPosition="end"
-              // disabled={loading}
-              // endIcon={<SendIcon />}
-              style={{ textTransform: 'none' }}
-              sx={{
-                margin: 2,
-              }}
-            >
-              Run Accuracy Test
-            </LoadingButton>
-          )}
         </Grid>
 
         <Grid item xs={12}></Grid>
@@ -2655,7 +3061,6 @@ PREFIX : <${db_prefix_URL}>`;
           spacing={2}
         >
           {visOptionPanel()}
-
           {RecommendatoinConfigPanel()}
         </Grid>
       </Grid>
@@ -2691,12 +3096,6 @@ PREFIX : <${db_prefix_URL}>`;
                   rowSpacingType="border"
                   showCellRightBorder
                   rowsPerPageOptions={[100, 200, 1000]}
-                  // onRowClick={(params) => {
-                  //     fetchStatementsFromRepo(
-                  //         (params.row as IRepository)
-                  //             .title
-                  //     );
-                  // }}
                 />
               )}
             </Paper>
@@ -2760,9 +3159,7 @@ PREFIX : <${db_prefix_URL}>`;
         </Alert>
       </Snackbar>
     </Grid>
-      </AccordionDetails>
-    </Accordion>
   );
 }
 
-export default SparqlPage;
+export default SparqlyPage;

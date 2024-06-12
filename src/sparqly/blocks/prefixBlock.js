@@ -9,9 +9,14 @@ class FieldDropdownDynamic extends Blockly.FieldDropdown {
     }
 
     static dropdownGenerator() {
-        const storedPrefixes = JSON.parse(localStorage.getItem('prefixes')) || {};
-        const options = Object.keys(storedPrefixes).map(prefix => [prefix, prefix]);
-        return options.length ? options : [['default', 'default']];
+      const storedPrefixes = JSON.parse(localStorage.getItem('prefixes')) || {};
+      // console.log('Stored Prefixes:', storedPrefixes); // 输出 storedPrefixes
+      const options = Object.entries(storedPrefixes).map(([key, label]) => {
+          // console.log('Key:', key, 'Label:', label); // 输出每个键值对
+          return [label, key];
+      });
+      // console.log('Options:', options); // 输出最终的 options 
+      return options.length ? options : [['default', 'default']];
     }
 }
 
@@ -26,6 +31,7 @@ block('sparql_prefix_list', {
       this.setTooltip('');
       this.setHelpUrl('');
       window.addEventListener('prefixesChanged', () => {
+        console.log('prefixesChanged event detected');
         this.updateShape_();
     });
     },
@@ -36,7 +42,16 @@ block('sparql_prefix_list', {
       }
     },
     dynamicOptions: function() {
-       return Object.keys(JSON.parse(localStorage.getItem('prefixes')) || {}).map(prefix => [prefix, prefix]);
+      const storedPrefixes = JSON.parse(localStorage.getItem('prefixes')) || {};
+      // console.log('Stored Prefixes in dynamicOptions:', storedPrefixes);
+
+      const options = Object.entries(storedPrefixes).map(([key, label]) => {
+          // console.log('Key:', key, 'Label:', label); 
+          return [label, key];
+      });
+
+      // console.log('Updated Dropdown Options in dynamicOptions:', options);
+      return options.length ? options : [['default', 'default']];
     },
   });
 
@@ -126,14 +141,30 @@ block('sparql_prefix', {
   
       // Rebuild block.
       for (let i = 0; i < newPrefixCount; i++) {
+        const uniqueKey = 'prefix_' + i;
         const input = this.appendDummyInput('PREFIX' + i)
                           .appendField('Prefix Label:')
-                          .appendField(new Blockly.FieldTextInput(''), 'PREFIX_LABEL' + i)
+                          // .appendField(new Blockly.FieldTextInput('', this.updatePrefix.bind(this, uniqueKey)), 'PREFIX_LABEL' + i)
+                          .appendField(new Blockly.FieldTextInput('', (newLabel) => {
+                            console.log(`Updating ${uniqueKey} to ${newLabel}`);
+                            this.updatePrefix(uniqueKey, newLabel);
+                        }), 'PREFIX_LABEL' + i)
                           .appendField('URI:')
                           .appendField(new Blockly.FieldTextInput(''), 'URI' + i);
       }
   
       this.prefixCount_ = newPrefixCount;
+    },
+
+    updatePrefix: function(uniqueKey, newLabel) {
+      const storedPrefixes = JSON.parse(localStorage.getItem('prefixes')) || {};
+      storedPrefixes[uniqueKey] = newLabel;
+      localStorage.setItem('prefixes', JSON.stringify(storedPrefixes));
+
+      console.log('After update: ', storedPrefixes);
+
+      const event = new Event('prefixesChanged');
+      window.dispatchEvent(event);
     }
   });
   

@@ -3,7 +3,7 @@ import { extendSparqlWithPrefix, extendSparqlWithPrefixList } from "./prefix";
 import { extendSparqlWithAdd, extendSparqlWithDivide, extendSparqlWithMultiply, extendSparqlWithSubtract } from "./maths.js";
 import { extendSparqlWithComparison } from "./maths.js";
 import { extendSparqlWithAnd, extendSparqlWithOr, extendSparqlWithNot, extendSparqlWithIf, extendSparqlWithCoalesce } from "./logics.js";
-import { extendSparqlWithString, extendSparqlWithNumber, extendSparqlWithVariableConfirmed } from "./variables.js";
+import { extendSparqlWithString, extendSparqlWithNumber, extendSparqlWithVariableConfirmed, extendSparqlWithBraces } from "./variables.js";
 import { extendSparqlWithFilter, extendSparqlWithExistence } from "./condition.js";
 import { extendSparqlWithGroupBy, extendSparqlWithHaving, extendSparqlWithLimit, extendSparqlWithOffset } from "./condition.js";
 import { extendSparqlWithOptional, extendSparqlWithUnion, extendSparqlWithOrderBy} from "./condition.js";
@@ -70,5 +70,6 @@ extendSparqlWithLangMatches(Sparql);
 extendSparqlWithRegex(Sparql);
 extendSparqlWithIf(Sparql);
 extendSparqlWithCoalesce(Sparql);
+extendSparqlWithBraces(Sparql);
 
 export { Sparql };

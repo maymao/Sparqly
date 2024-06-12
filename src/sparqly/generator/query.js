@@ -29,16 +29,6 @@ const extendSparqlWithDistinctReduced = (Sparql) => {
 const extendSparqlWithSelect = (Sparql) => {
   Sparql.sparql_select = function(block) {
     var variablesCode = Sparql.valueToCode(block, 'VARIABLES', Sparql.ORDER_ATOMIC) || '*';
-    // store selected variables in local storage
-    let selectVars = {};
-    variablesCode.split(' ').forEach(varName => {
-      if (varName.startsWith('?')) {
-        selectVars[varName] = true;
-      }
-    });
-  
-    localStorage.setItem('selectVars', JSON.stringify(selectVars));
-
 
     var whereCodes = [];
     var currentBlock = block.getInputTargetBlock('WHERE');

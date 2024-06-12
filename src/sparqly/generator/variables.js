@@ -17,13 +17,13 @@ const extendSparqlWithString = (Sparql) => {
 const extendSparqlWithVariableSelect = (Sparql) => {
     Sparql.sparql_variable_select = function(block) {
       const variable = block.getFieldValue('VARIABLE') || '';
-      let code = `?${variable}`;
+      let code = `${variable}`;
       var nextBlock = block.getInputTargetBlock('NEXT_VARIABLE');
       
       while (nextBlock) {
         var nextCode = nextBlock.getFieldValue('VARIABLE');
         if (nextCode) {
-          code += ` ?${nextCode}`;
+          code += ` ${nextCode}`;
         }
         nextBlock = nextBlock.getInputTargetBlock('NEXT_VARIABLE');
       }
@@ -35,7 +35,7 @@ const extendSparqlWithVariableSelect = (Sparql) => {
 const extendSparqlWithVariableVarname = (Sparql) => {
   Sparql.sparql_variable_varname = function(block) {
     const varName = block.getFieldValue('VARIABLE') || 'unknownVar';
-    var code = varName;
+    var code = '?' + varName;
     return [code, Sparql.ORDER_ATOMIC];
   };
 }
@@ -50,8 +50,9 @@ const extendSparqlWithVariableConfirmed = (Sparql) => {
 
 const extendSparqlWithVariableTypename = (Sparql) => {
   Sparql.sparql_variable_typename = function(block) {
+
     const varName = block.getFieldValue('VARIABLE') || 'unknownType';
-    const code = ':' + varName;
+    const code = ':' + varName ;
     return [code, Sparql.ORDER_ATOMIC];
   };
 }
@@ -85,7 +86,13 @@ const extendSparqlWithVariableType = (Sparql) => {
     
     let code = variable1 + ':' + variable2;  // variable1:variable2
     if (nameCode) {
-      code += ' ' + nameCode;  
+      console.log(nameCode);
+      if (nameCode.startsWith('?')) {
+        let varNames = JSON.parse(localStorage.getItem('varNames')) || {};
+        varNames[nameCode] = true;
+        localStorage.setItem('varNames', JSON.stringify(varNames));
+      } 
+      code += ' ' + nameCode + ' ';  
     }
 
     return [code, Sparql.ORDER_ATOMIC];
@@ -110,7 +117,43 @@ const extendSparqlWithAs = (Sparql) => {
   };
 };
 
+const extendSparqlWithBraces = (Sparql) => {
+  Sparql.sparql_braces = function(block) {
+    var patternCodes = [];
+    var currentBlock = block.getInputTargetBlock('PATTERN');
+    
+    while (currentBlock) {
+      switch (currentBlock.type) {
+        case 'sparql_class_with_property':
+          patternCodes.push(Sparql.sparql_class_with_property(currentBlock) || '');
+          break;
+        case 'sparql_filter':
+          patternCodes.push(Sparql.sparql_filter(currentBlock) || '');
+          break;
+        case 'sparql_optional':
+          patternCodes.push(Sparql.sparql_optional(currentBlock) || '');
+          break;
+        case 'sparql_union':
+          patternCodes.push(Sparql.sparql_union(currentBlock) || '');
+          break;
+        case 'sparql_bind':
+          patternCodes.push(Sparql.sparql_bind(currentBlock) || '');
+          break;
+        default:
+          console.warn('Unhandled block type:', currentBlock.type);
+          break;
+      }
+      currentBlock = currentBlock.nextConnection && currentBlock.nextConnection.targetBlock();
+    }
+  
+    var pattern = patternCodes.join('  ');
+    const code = `\n${pattern}`;
+    return [code, Sparql.ORDER_ATOMIC];
+  };
+}
+
 export { 
+  extendSparqlWithBraces,
   extendSparqlWithNumber, 
   extendSparqlWithString, 
   extendSparqlWithVariableSelect,

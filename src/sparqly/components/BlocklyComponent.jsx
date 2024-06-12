@@ -9,6 +9,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import { SparqlContext } from '../SparqlContext.js';
+import { Box, Button, Grid, IconButton } from '@mui/material';
+import { Add, Remove } from '@mui/icons-material';
 
 const BlocklyComponent = () => {
   const blocklyRef = useRef(null);
@@ -18,9 +20,18 @@ const BlocklyComponent = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [storedBlocks, setStoredBlocks] = useState([]);
   const [showCopyMessage, setShowCopyMessage] = useState(false);
+  const [fontSize, setFontSize] = useState(14);
 
   Blockly.utils.colour.setHsvSaturation(0.25);
   Blockly.utils.colour.setHsvValue(0.75);
+
+  const increaseFontSize = () => {
+    setFontSize((prevSize) => Math.min(prevSize + 2, 24)); // Increase font size, max 24px
+  };
+
+  const decreaseFontSize = () => {
+    setFontSize((prevSize) => Math.max(prevSize - 2, 8)); // Decrease font size, min 8px
+  };
 
   const oneMany = `
   <block type="sparql_prefix">
@@ -102,7 +113,7 @@ const BlocklyComponent = () => {
                           <block type="sparql_properties_in_class">
                             <value name="INPUT">
                               <block type="sparql_variable_type">
-                                <field name="VARIABLE2">name</field>
+                                <field name="VARIABLE2">population</field>
                                 <value name="TYPE2">
                                   <block type="sparql_variable_varname">
                                     <field name="VARIABLE">?cityPop</field>
@@ -218,6 +229,99 @@ const BlocklyComponent = () => {
     </next>
   </block>
   `;
+  const pattern1 = `
+  <block type="sparql_prefix" x="10" y="10">
+    <mutation prefixes="4"></mutation>
+    <field name="PREFIX_LABEL0">rdf</field>
+    <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+    <field name="PREFIX_LABEL1">rdfs</field>
+    <field name="URI1">http://www.w3.org/2000/01/rdf-schema#</field>
+    <field name="PREFIX_LABEL2">owl</field>
+    <field name="URI2">http://www.w3.org/2002/07/owl#</field>
+    <field name="PREFIX_LABEL3"> </field>
+    <field name="URI3">http://www.semwebtech.org/mondial/10/meta#</field>
+    <next>
+      <block type="sparql_select">
+        <value name="VARIABLES">
+          <block type="sparql_variable_select">
+            <field name="VARIABLE">name</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select">
+                <field name="VARIABLE">population</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="WHERE">
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">country</field>
+              </block>
+            </value>
+            <statement name="PROPERTIES">
+              <block type="sparql_properties_in_class">
+                <value name="INPUT">
+                  <block type="sparql_variable_type">
+                    <field name="VARIABLE2">type</field>
+                    <value name="TYPE1">
+                      <block type="sparql_prefix_list">
+                        <field name="PREFIX">prefix_0</field>
+                      </block>
+                    </value>
+                    <value name="TYPE2">
+                      <block type="sparql_variable_typename">
+                        <field name="VARIABLE">Country</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">name</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">?name</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">population</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">?population</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </statement>
+        <next>
+          <block type="sparql_condition">
+            <statement name="CONDITIONS">
+              <block type="sparql_orderby">
+                <field name="ORDER">ASC</field>
+                <field name="VARIABLE">population</field>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+`;
 
   const patterns = [];
 
@@ -226,7 +330,8 @@ const BlocklyComponent = () => {
       <xml xmlns="https://developers.google.com/blockly/xml">
 
         <category name="Examples" categorystyle="examples_category">
-        ${oneMany}
+          ${pattern1}
+          ${oneMany}
         </category>
 
         <category name="Basics" categorystyle="basics_category">
@@ -473,6 +578,10 @@ const BlocklyComponent = () => {
     };
   }, [storedBlocks]);
 
+  useEffect(() => {
+    console.log('Current sparqlCode:', sparqlCode);
+  }, [sparqlCode]);
+
   const saveWorkspaceToStoredBlocks = () => {
     if (workspaceRef.current) {
       const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
@@ -492,6 +601,7 @@ const BlocklyComponent = () => {
   const generateSparqlCode = () => {
     if (workspaceRef.current) {
       localStorage.setItem('classNames', JSON.stringify({}));
+      localStorage.setItem('varNames', JSON.stringify({}));
       const topBlocks = workspaceRef.current.getTopBlocks(true);
       let code = '';
       topBlocks.forEach(block => {
@@ -517,17 +627,172 @@ const BlocklyComponent = () => {
     });
   };
 
+  const handleRefresh = () => {
+    if (workspaceRef.current) {
+      const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
+      Blockly.Xml.clearWorkspaceAndLoadFromXml(xml, workspaceRef.current);
+    }
+  };
+
   return (
+  //   <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+  //   <Grid container sx={{ flex: 1 }}>
+  //     <Grid item xs={12} sx={{ position: 'relative' }}>
+  //       <Box ref={blocklyRef} sx={{ height: '80vh', width: '100%' }} />
+  //       <Button 
+  //         onClick={handleRefresh} 
+  //         sx={{
+  //           position: 'absolute',
+  //           top: '160px',
+  //           right: '20px',
+  //           width: '50px',
+  //           height: '50px',
+  //           backgroundColor: '#6FBF8E',
+  //           borderRadius: '50%',
+  //           boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+  //           display: 'flex',
+  //           justifyContent: 'center',
+  //           alignItems: 'center',
+  //           minWidth: '50px',
+  //           '&:hover': {
+  //             backgroundColor: '#57a07e',
+  //           }
+  //         }}
+  //       >
+  //         Refresh
+  //       </Button>
+  //       <Button 
+  //         onClick={saveWorkspaceToStoredBlocks} 
+  //         sx={{
+  //           position: 'absolute',
+  //           top: '20px',
+  //           right: '20px',
+  //           width: '50px',
+  //           height: '50px',
+  //           backgroundColor: '#6FBF8E',
+  //           borderRadius: '50%',
+  //           boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+  //           display: 'flex',
+  //           justifyContent: 'center',
+  //           alignItems: 'center',
+  //           minWidth: '50px',
+  //           '&:hover': {
+  //             backgroundColor: '#57a07e',
+  //           }
+  //         }}
+  //       >
+  //         Save
+  //       </Button>
+  //       <Button 
+  //         onClick={clearStoredBlocks} 
+  //         sx={{
+  //           position: 'absolute',
+  //           top: '90px',
+  //           right: '20px',
+  //           width: '50px',
+  //           height: '50px',
+  //           backgroundColor: '#ff4d4d',
+  //           borderRadius: '50%',
+  //           boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+  //           display: 'flex',
+  //           justifyContent: 'center',
+  //           alignItems: 'center',
+  //           minWidth: '50px',
+  //           '&:hover': {
+  //             backgroundColor: '#e04444',
+  //           }
+  //         }}
+  //       >
+  //         Clear
+  //       </Button>
+  //     </Grid>
+  //   </Grid>
+  //   <Grid container sx={{ height: '20vh', position: 'relative', padding: '10px', boxSizing: 'border-box' }}>
+  //     <Grid item xs={12} sx={{ display: 'flex', flexDirection: 'column' }}>
+      
+  //       {showCopyMessage && (
+  //         <Box sx={{
+  //           position: 'absolute',
+  //           bottom: '80px',
+  //           right: '20px',
+  //           backgroundColor: '#4CAF50',
+  //           color: 'white',
+  //           padding: '10px',
+  //           borderRadius: '5px',
+  //           boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+  //         }}>
+  //           Copied to clipboard!
+  //         </Box>
+  //       )}
+  //       <Button 
+  //         onClick={copyToClipboard} 
+  //         sx={{
+  //           padding: '10px',
+  //           position: 'absolute',
+  //           bottom: '15px',
+  //           right: '20px',
+  //           backgroundColor: '#6FBF8E',
+  //           borderRadius: '10px',
+  //           color: 'white',
+  //           fontWeight: 'bold',
+  //           boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+  //           '&:hover': {
+  //             backgroundColor: '#57a07e',
+  //           }
+  //         }}
+  //       >
+  //         Copy to Clipboard
+  //       </Button>
+  //       <Box component="pre" sx={{
+  //         flex: 1,
+  //         overflow: 'auto',
+  //         backgroundColor: '#f0f0f0',
+  //         border: '1px solid #ccc',
+  //         marginTop: '10px',
+  //         boxShadow: '0 4px 8px rgba(0,0,0,0.25)',
+  //         borderRadius: '10px',
+  //         padding: '10px',
+  //         textAlign: 'left',
+  //         whiteSpace: 'pre-wrap',
+  //         fontSize: `${fontSize}px`
+  //       }}>
+  //         {sparqlCode}
+  //       </Box>
+  //       <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+  //         <IconButton onClick={decreaseFontSize}>
+  //           <Remove />
+  //         </IconButton>
+  //         <IconButton onClick={increaseFontSize}>
+  //           <Add />
+  //         </IconButton>
+  //       </Box>
+
+  //     </Grid>
+  //   </Grid>
+  // </Box>
     <div>
     {/* <Grid container spacing={2}>
       <Grid item xs={12} md={8}> */}
-        <Accordion defaultExpanded>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">Workspace </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
+
             <div style={{ display: 'flex', height: '80vh', position: 'relative' }}>
               <div ref={blocklyRef} style={{ flex: 2, minWidth: '100%' }} />
+              <button onClick={handleRefresh} style={{
+                position: 'absolute',
+                top: '160px',
+                right: '20px',
+                width: '50px',
+                height: '50px',
+                backgroundColor: '#6FBF8E',
+                borderRadius: '50%',
+                border: 'none',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+              Refresh
+            </button>
               <button onClick={saveWorkspaceToStoredBlocks} style={{
                 position: 'absolute',
                 top: '20px',
@@ -563,15 +828,10 @@ const BlocklyComponent = () => {
                 Clear
               </button>
             </div>
-          </AccordionDetails>
-        </Accordion>
+
       {/* </Grid>
       <Grid item xs={12} md={4}> */}
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">Code Display</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
+
             <div style={{
               width: '100%',
               backgroundColor: '#ffffff',
@@ -628,8 +888,7 @@ const BlocklyComponent = () => {
                 {sparqlCode}
               </pre>
             </div>
-          </AccordionDetails>
-        </Accordion>
+
       {/* </Grid> */}
      {/* </Grid> */}
   </div>

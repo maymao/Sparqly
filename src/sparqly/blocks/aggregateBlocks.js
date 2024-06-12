@@ -4,7 +4,7 @@ import { block } from '../core/blocks.js';
 block('sparql_count', {
     init: function() {
       this.appendValueInput("VARIABLE")
-          .setCheck(["Variable", "Math"])
+          .setCheck(["Variable", "Math", "VARIABLE"])
           .appendField("COUNT");
       this.setOutput(true, "Number");
       this.setColour(0);
@@ -15,7 +15,7 @@ block('sparql_count', {
 block('sparql_sum',{
     init: function() {
       this.appendValueInput("VARIABLE")
-          .setCheck(["Variable", "Math"])
+          .setCheck(["Variable", "Math", "VARIABLE"])
           .appendField("SUM");
       this.setOutput(true, "Number");
       this.setColour(0);
@@ -26,7 +26,7 @@ block('sparql_sum',{
 block('sparql_avg', {
     init: function() {
       this.appendValueInput("VARIABLE")
-          .setCheck(["Variable", "Math"])
+          .setCheck(["Variable", "Math", "VARIABLE"])
           .appendField("AVG");
       this.setOutput(true, "Number");
       this.setColour(0);
@@ -38,7 +38,7 @@ block('sparql_avg', {
 block('sparql_min', {
     init: function() {
       this.appendValueInput("VARIABLE")
-          .setCheck(["Variable", "Math"])
+          .setCheck(["Variable", "Math", "VARIABLE"])
           .appendField("MIN");
       this.setOutput(true, "Number");
       this.setColour(0);
@@ -50,7 +50,7 @@ block('sparql_min', {
 block('sparql_max', {
     init: function() {
       this.appendValueInput("VARIABLE")
-          .setCheck(["Variable", "Math"])
+          .setCheck(["Variable", "Math", "VARIABLE"])
           .appendField("MAX");
       this.setOutput(true, "Number");
       this.setColour(0);

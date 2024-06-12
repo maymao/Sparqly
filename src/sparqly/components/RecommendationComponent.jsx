@@ -1172,6 +1172,7 @@ const RecommendationComponent = ({ repo_graphDB, db_prefix_URL }) => {
       try {
         const query = await sendSPARQLquery(repo_graphDB, sparqlCode, true);
         setSparqlOriginalResult(query);
+
         const head = query.head.vars;
         const results_bindings = query.results.bindings;
   
@@ -1204,6 +1205,10 @@ const RecommendationComponent = ({ repo_graphDB, db_prefix_URL }) => {
         setSparqlResult(data);
         // Generate Recommendations
         const recom = await generateVisRecommendation(sparqlCode, data);
+
+        console.log('Generated Recommendations:', recom.recommendations);
+        console.log('Generated Excluded Recommendations:', recom.excludedRecommendations);
+
         setRecommendations(recom.recommendations);
         setExcludedRecommendations(recom.excludedRecommendations);
       } catch (error) {
@@ -1231,8 +1236,8 @@ const RecommendationComponent = ({ repo_graphDB, db_prefix_URL }) => {
 
   return (
     <div>
-      <pre>{`SPARQL Code:\n${sparqlCode}\n\nRepository Graph DB: ${repo_graphDB}\nDB Prefix URL: ${db_prefix_URL}`}
-      </pre>
+      {/* <pre>{`SPARQL Code:\n${sparqlCode}\n\nRepository Graph DB: ${repo_graphDB}\nDB Prefix URL: ${db_prefix_URL}`} */}
+      {/* </pre> */}
       <Button variant="contained" color="primary" onClick={executeQuery}>
           Execute Query
       </Button>
@@ -1242,7 +1247,7 @@ const RecommendationComponent = ({ repo_graphDB, db_prefix_URL }) => {
       {showResult && sparqlResult && (
         <pre>{JSON.stringify(sparqlResult, null, 2)}</pre>
       )}
-       <h2>Recommendations</h2>
+       {/* <h2>Recommendations</h2>
       {recommendations && recommendations.length > 0 ? (
         <ul>
           {recommendations.map((rec, index) => (
@@ -1251,7 +1256,7 @@ const RecommendationComponent = ({ repo_graphDB, db_prefix_URL }) => {
         </ul>
       ) : (
         <p>No recommendations available.</p>
-      )}
+      )} */}
     </div>
   );
 };

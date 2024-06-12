@@ -34,6 +34,8 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Repositories from './Repositories';
 import SparqlPage from './SparqlPage';
+import SparqlyPage from './SparqlPage/sparqly';  // here changed
+
 import {
   AppBar,
   Copyright,
@@ -75,7 +77,7 @@ function DashboardContent() {
   const dispatch = useDispatch();
 
   const [siderOpen, setSiderOpen] = useState(true);
-  const [tab, setTab] = useState(TABS_DASHBOARD.SPARQLY);
+  const [tab, setTab] = useState(TABS_DASHBOARD.REPOSITORIES);
 
   const [repoList, setRepoList] = useState<string[]>([]);
   const [selectRepoReminder, setSelectRepoReminder] = useState<boolean>(false);
@@ -220,10 +222,11 @@ function DashboardContent() {
     }
 
     if (tab_current === TABS_DASHBOARD.GRAPHS) {
-      return <GraphsPage />;
+      return <Sparqly repo_graphDB={repo_graphDB} db_prefix_URL={db_prefix_URL}/>;
+      // return <GraphsPage />;
     }
     if (tab_current === TABS_DASHBOARD.SPARQLY) {
-      return <Sparqly repo_graphDB={repo_graphDB} db_prefix_URL={db_prefix_URL}/>;
+      return <SparqlyPage repo_graphDB={repo_graphDB} db_prefix_URL={db_prefix_URL}/>;
     }
     return 'ERROR';
   }
