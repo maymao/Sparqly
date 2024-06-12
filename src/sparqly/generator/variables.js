@@ -32,6 +32,24 @@ const extendSparqlWithVariableSelect = (Sparql) => {
   };
 };
 
+const extendSparqlWithVariableSelectDemo = (Sparql) => {
+  Sparql.sparql_variable_select_demo = function(block) {
+    const variable = block.getFieldValue('VARIABLE') || '';
+    let code = `?${variable}`;
+    var nextBlock = block.getInputTargetBlock('NEXT_VARIABLE');
+    
+    while (nextBlock) {
+      var nextCode = nextBlock.getFieldValue('VARIABLE');
+      if (nextCode) {
+        code += ` ?${nextCode}`;
+      }
+      nextBlock = nextBlock.getInputTargetBlock('NEXT_VARIABLE');
+    }
+    
+    return [code, Sparql.ORDER_ATOMIC];
+};
+};
+
 const extendSparqlWithVariableVarname = (Sparql) => {
   Sparql.sparql_variable_varname = function(block) {
     const varName = block.getFieldValue('VARIABLE') || 'unknownVar';
@@ -157,6 +175,7 @@ export {
   extendSparqlWithNumber, 
   extendSparqlWithString, 
   extendSparqlWithVariableSelect,
+  extendSparqlWithVariableSelectDemo,
   extendSparqlWithVariableTypename,
   extendSparqlWithVariableVarname,
   extendSparqlWithVariableType,

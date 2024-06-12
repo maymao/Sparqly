@@ -47,6 +47,17 @@ block('sparql_variable_select', {
   }
 });
 
+block('sparql_variable_select_demo', {
+  init: function() {
+    this.appendValueInput("NEXT_VARIABLE")
+        .appendField("")
+        .appendField(new Blockly.FieldTextInput(" "), "VARIABLE");
+    this.setColour(100);
+    this.setOutput(true, "VARIABLE");
+    this.setTooltip("Use for select/class block, indicate properties selected. ?_");
+  }
+});
+
 block('sparql_variable_typename', {
   init: function() {
     this.appendDummyInput()
