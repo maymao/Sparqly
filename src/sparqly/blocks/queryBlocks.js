@@ -28,13 +28,13 @@ block('sparql_distinct_reduced', {
     }
 });
 
-block('sparql_condition', {
-    init: function() {
-      this.appendStatementInput("CONDITIONS")
-          .setCheck(["Modifier", "Condition"])
-          .appendField("CONDITION");
-      this.setPreviousStatement(true, "Condition");
-      this.setColour(210);
-      this.setTooltip("Define classes and conditions for a SPARQL WHERE clause.");
-    }
-  });
+// block('sparql_condition', {
+//     init: function() {
+//       this.appendStatementInput("CONDITIONS")
+//           .setCheck(["Modifier", "Condition"])
+//           .appendField("CONDITION");
+//       this.setPreviousStatement(true, "Condition");
+//       this.setColour(210);
+//       this.setTooltip("Define classes and conditions for a SPARQL WHERE clause.");
+//     }
+//   });

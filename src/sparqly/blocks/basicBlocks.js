@@ -1,32 +1,6 @@
 import Blockly from 'blockly';
 import { block } from '../core/blocks.js';
 
-block('sparql_colon_back', {
-    init: function() {
-        this.appendDummyInput()
-            .appendField(":");
-        this.appendValueInput("COLON")
-        this.setOutput(true, "String");
-        this.setColour(230);
-        this.setTooltip("Colon.");
-        this.setHelpUrl("");
-        this.setInputsInline(true);
-    }
-});
-
-block('sparql_colon_front', {
-    init: function() {
-        this.appendValueInput("COLON")
-        this.appendDummyInput()
-            .appendField(":");
-        this.setOutput(true, "String");
-        this.setColour(230);
-        this.setTooltip("Colon.");
-        this.setHelpUrl("");
-        this.setInputsInline(true);
-    }
-});
-
 block('sparql_braces', {
     init: function() {
         this.appendDummyInput()
