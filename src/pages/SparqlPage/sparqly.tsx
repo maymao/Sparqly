@@ -14,16 +14,22 @@ import {
   Alert,
   AppBar,
   Backdrop,
+  Box,
   Button,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
+  Drawer,
   FormControlLabel,
   FormGroup,
   Grid,
   IconButton,
+  List,
+  ListItem,
+  ListItemText,
   Paper,
   Popover,
   Skeleton,
@@ -73,7 +79,9 @@ import Sparqly from '../../sparqly'
 import * as Blockly from 'blockly';
 import { Sparql } from '../../sparqly/generator/index.js';
 import myTheme from '../../sparqly/core/theme.js';
-import { Add, Remove } from '@mui/icons-material';
+import { Add, ChevronLeft, ChevronRight, Remove } from '@mui/icons-material';
+import { Log } from '@antv/g2/lib/data';
+import React from 'react';
 
 
 export interface VisDataProps {
@@ -133,18 +141,16 @@ WHERE {
            :population ?population .
 } ORDER BY DESC(?population)`;
 
-const blocklyRef = useRef<HTMLDivElement>(null);
-const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
-const [sidebarOpen, setSidebarOpen] = useState(false);
-const [storedBlocks, setStoredBlocks] = useState<string[]>([]);
-const [showCopyMessage, setShowCopyMessage] = useState(false);
-const [fontSize, setFontSize] = useState(14);
-const [sparqlCode, setSparqlCode] = useState<string>(initialString);
-
+  const blocklyRef = useRef<HTMLDivElement>(null);
+  const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [storedBlocks, setStoredBlocks] = useState<string[]>([]);
+  const [showCopyMessage, setShowCopyMessage] = useState(false);
+  const [fontSize, setFontSize] = useState(14);
+  const [sparqlCode, setSparqlCode] = useState<string>(initialString);
+  const [logMessage, setLogMessage] = useState<string[]>([]);
 
   const [query, setQuery] = useState<string>(initialString);
-//   const { sparqlCode, setSparqlCode, sparqlResult, setSparqlResult,
-    // sparqlOriginalResult, setSparqlOriginalResult } = useContext(SparqlContext); // 使用 useContext 获取 sparqlCode 和 setSparqlCode
   const [searchParams, setSearchParams] = useSearchParams();
   const [ConceptualModelInfo, setConceptualModelInfo] =
     useState<ConceptialModelInfoProps>({});
@@ -191,6 +197,33 @@ const [sparqlCode, setSparqlCode] = useState<string>(initialString);
     network: 1000,
     heatmap: 100,
   });
+
+  // function clearLogs() {
+  //   localStorage.removeItem('blocklyLogs');
+  //   setLogMessage([]);
+  // }
+  
+  // const displayLogs = () => {
+  //   const storedLogs = localStorage.getItem('blocklyLogs');
+  //   if (storedLogs) {
+  //     const parsedLogs = JSON.parse(storedLogs);
+  //     if (JSON.stringify(parsedLogs) !== JSON.stringify(logMessage)) {
+  //       setLogMessage(parsedLogs);
+  //     }
+  //   } else {
+  //     if (logMessage.length !== 0) {
+  //       setLogMessage([]);
+  //     }
+  //   }
+  // };
+  
+  // useEffect(() => {
+  //   displayLogs();
+  // }, []);
+
+  // useEffect(() => {
+  //   clearLogs();
+  // }, []);
 
   const increaseFontSize = () => {
     setFontSize((prevSize) => Math.min(prevSize + 2, 24)); // Increase font size, max 24px
@@ -1150,10 +1183,8 @@ const [sparqlCode, setSparqlCode] = useState<string>(initialString);
     </xml>`;
   };
   
-
-  
   useEffect(() => {
-    console.log('Current sparqlCode:', sparqlCode);
+    // console.log('Current sparqlCode:', sparqlCode);
   }, [sparqlCode]);
   
   useEffect(() => {
@@ -1164,7 +1195,7 @@ const [sparqlCode, setSparqlCode] = useState<string>(initialString);
   }, [repo_graphDB, db_prefix_URL]);
 
   useEffect(() => {
-    console.log('searchParams: ', searchParams);
+    // console.log('searchParams: ', searchParams);
     if (searchParams.get('query')) {
       console.log('searchParams.get(query): ', searchParams.get('query'));
       setQuery(searchParams.get('query') || initialString);
@@ -2672,30 +2703,56 @@ PREFIX : <${db_prefix_URL}>`;
       description: 'Redo',
     },
     {
-      key: '[Ctrl|Cmd]-u',
-      description: 'Undo',
-    },
-    {
-      key: '[Ctrl|Cmd]-f',
-      description: 'Find/Relpace',
-    },
-    {
-      key: '[Ctrl|Cmd]-d',
-      description: 'Delete current/selected line(s)',
+      key: 'delete',
+      description: 'Delete current/selected block(s)',
     },
     {
       key: '[Ctrl|Cmd]-x',
-      description: 'Cut current/selected line(s)',
+      description: 'Cut current/selected block(s)',
     },
     {
       key: '[Ctrl|Cmd]-c',
-      description: 'Copy current/selected line(s)',
+      description: 'Copy current/selected block(s)',
     },
     {
       key: '[Ctrl|Cmd]-v',
       description: 'Paste',
     },
   ];
+  // const keyboardShortcutList = [
+  //   {
+  //     key: '[Ctrl|Cmd]-z',
+  //     description: 'Undo',
+  //   },
+  //   {
+  //     key: '[Ctrl|Cmd]-shift-z',
+  //     description: 'Redo',
+  //   },
+  //   {
+  //     key: '[Ctrl|Cmd]-u',
+  //     description: 'Undo',
+  //   },
+  //   {
+  //     key: '[Ctrl|Cmd]-f',
+  //     description: 'Find/Relpace',
+  //   },
+  //   {
+  //     key: '[Ctrl|Cmd]-d',
+  //     description: 'Delete current/selected line(s)',
+  //   },
+  //   {
+  //     key: '[Ctrl|Cmd]-x',
+  //     description: 'Cut current/selected line(s)',
+  //   },
+  //   {
+  //     key: '[Ctrl|Cmd]-c',
+  //     description: 'Copy current/selected line(s)',
+  //   },
+  //   {
+  //     key: '[Ctrl|Cmd]-v',
+  //     description: 'Paste',
+  //   },
+  // ];
 
   function KeyboardShortcut() {
     return (
@@ -2997,6 +3054,79 @@ PREFIX : <${db_prefix_URL}>`;
     );
   }
 
+  function DocSideBar() {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const toggleDrawer = () => {
+      setIsOpen(!isOpen);
+    };
+
+    type BlockTypes = keyof typeof blockTypes;
+    
+    const blockTypes = {
+      'String': ['String'],
+      'Number': ['Number'],
+      'Boolean': ['Not', 'And', 'Or', 'Comparison'],
+      'Modifier': ['Having', 'Limit', 'Offset', 'Order By', 'Group By'],
+      'Aggregate': ['Count', 'Sum', 'Average', 'Minimum', 'Maximum'],
+      'Pattern': ['Triple Pattern', 'Filter', 'Optional', 'Union', 'Bind'],
+      'Variable': ['Variable list', 'Variable', 'Type Name', 'Variable Name', 'As'],
+      'Arithmetic': ['Add', 'Subtract', 'Multiply', 'Divide'],
+      'Keyword': ['Prefix', 'Select', 'Distinct/Reduced', 'Modifier Connector', 'Existence'],
+      'SubTriple': ['Predicate-Object Pair'],
+      'ClassProperty': ['Connector'],
+      '':['']
+    };
+
+    return (
+      <>
+        <IconButton onClick={toggleDrawer} style={{ position: 'fixed', right: 0, top: '50%', zIndex: 1300 }}>
+          {isOpen ? <ChevronRight /> : <ChevronLeft />}
+        </IconButton>
+        <Drawer 
+          variant="persistent" 
+          anchor="right" 
+          open={isOpen} 
+          PaperProps={{ style: { marginTop: '64px' } }} 
+        >
+          <Paper style={{ padding: '10px', backgroundColor: '#4285F4', color: '#fff', fontWeight: 'bold' }}>
+            <Typography variant="h6">Tips: </Typography>
+            <div> - Block names corresponding to each type</div>
+            <div>- Hover over the blocks to see NAME</div>
+          </Paper>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ width: '100%' }}>
+              {Object.keys(blockTypes).map((type) => (
+                <React.Fragment key={type}>
+                  <Typography variant="h6" style={{ margin: '16px 16px 8px' }}>
+                    {type}
+                  </Typography>
+                  <List>
+                    {blockTypes[type as BlockTypes].map((block) => (
+                    <Box
+                      key={block}
+                      border={1}
+                      borderColor="grey.300"
+                      borderRadius={1}
+                      margin={1}
+                      bgcolor="grey.100"
+                    >
+                      <ListItem>
+                        <ListItemText primary={block} />
+                      </ListItem>
+                    </Box>
+                    ))}
+                  </List>
+                  <Divider />
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        </Drawer>
+      </>
+    );
+  };
+  
   const [showPrefixReference, setShowPrefixReference] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const canBeOpen_prefixRef = showPrefixReference && Boolean(anchorEl);
@@ -3096,23 +3226,6 @@ PREFIX : <${db_prefix_URL}>`;
     localStorage.setItem('storedBlocks', JSON.stringify([]));
   };
 
-//   const generateSparqlCode = () => {
-//     if (workspaceRef.current) {
-//       localStorage.setItem('classNames', JSON.stringify({}));
-//       const topBlocks = workspaceRef.current.getTopBlocks(true);
-//       let code = '';
-//       topBlocks.forEach(block => {
-//         let currentBlock: Blockly.BlockSvg | null = block;
-//         while (currentBlock) {
-//           const blockCode = Sparql.blockToCode(currentBlock);
-//           code += Array.isArray(blockCode) ? blockCode[0] : blockCode;
-//           currentBlock = currentBlock.nextConnection && currentBlock.nextConnection.targetBlock();
-//         }
-//       });
-//       setSparqlCode(code);
-//     }
-//   };
-
   const generateSparqlCode = () => {
     if (workspaceRef.current) {
       localStorage.setItem('varNames', JSON.stringify({}));
@@ -3133,8 +3246,6 @@ PREFIX : <${db_prefix_URL}>`;
       setSparqlCode(code);
     }
   };
-  
-  
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(sparqlCode).then(() => {
@@ -3159,12 +3270,13 @@ PREFIX : <${db_prefix_URL}>`;
 
 
   return (
+
       <Grid style={{ margin: 10 }}>
+        {DocSideBar()}
       <Grid container>
         {PrefixReference()}
         {KeyboardShortcut()}
       </Grid>
-
       <div style={{ display: 'flex', height: '80vh', position: 'relative' }}>
         <div ref={blocklyRef} style={{ flex: 2, minWidth: '100%' }} />
         <button onClick={handleRefresh} style={{
@@ -3219,9 +3331,6 @@ PREFIX : <${db_prefix_URL}>`;
         Clear
         </button>
     </div>
-
-{/* </Grid>
-<Grid item xs={12} md={4}> */}
 
     <div style={{
         width: '100%',

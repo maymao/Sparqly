@@ -1,17 +1,18 @@
 import Blockly from 'blockly';
 import { block } from '../core/blocks.js';
+import { Sparql } from '../generator/sparqlGenerator.js';
 
 
 block('sparql_add', {
     init: function() {
       this.appendValueInput("ADDEND1")
-          .setCheck(["Number", "Variable", "Math", "String", "VARIABLE"])
+          .setCheck([Sparql.TYPE_NUMBER, Sparql.TYPE_VARIABLE, Sparql.TYPE_ARITHMETIC])
       this.appendValueInput("ADDEND2")
-          .setCheck(["Number", "Variable", "Math", "String", "VARIABLE"])
+          .setCheck([Sparql.TYPE_NUMBER, Sparql.TYPE_VARIABLE, Sparql.TYPE_ARITHMETIC])
           .appendField("+");
-      this.setOutput(true, "Math");
+      this.setOutput(true, Sparql.TYPE_ARITHMETIC);
       this.setColour(100);
-      this.setTooltip("Adds two numbers or variables.");
+      this.setTooltip("Name: Add\nAdds two numbers or variables.\nCan be connected by: Arithmetic, Variable, Number.");
       this.setHelpUrl("");
       this.setInputsInline(true);
     }
@@ -20,13 +21,13 @@ block('sparql_add', {
 block('sparql_subtract', {
     init: function() {
       this.appendValueInput("MINUEND")
-          .setCheck(["Number", "Variable", "Math", "String", "VARIABLE"])
+          .setCheck([Sparql.TYPE_NUMBER, Sparql.TYPE_VARIABLE, Sparql.TYPE_ARITHMETIC])
       this.appendValueInput("SUBTRAHEND")
-          .setCheck(["Number", "Variable", "Math", "String", "VARIABLE"])
+          .setCheck([Sparql.TYPE_NUMBER, Sparql.TYPE_VARIABLE, Sparql.TYPE_ARITHMETIC])
           .appendField("-");
-      this.setOutput(true, "Math");
+      this.setOutput(true, Sparql.TYPE_ARITHMETIC);
       this.setColour(100);
-      this.setTooltip("Subtracts one number or variable from another.");
+      this.setTooltip("Name: Subtract\nSubtracts one number or variable from another.\nCan be connected by: Arithmetic, Variable, Number.");
       this.setInputsInline(true);
       this.setHelpUrl("");
     }
@@ -35,29 +36,28 @@ block('sparql_subtract', {
 block('sparql_multiply', {
     init: function() {
       this.appendValueInput("FACTOR1")
-          .setCheck(["Number", "Variable", "Math", "String", "VARIABLE"])
+          .setCheck([Sparql.TYPE_NUMBER, Sparql.TYPE_VARIABLE, Sparql.TYPE_ARITHMETIC])
       this.appendValueInput("FACTOR2")
-          .setCheck(["Number", "Variable", "Math", "String", "VARIABLE"])
+          .setCheck([Sparql.TYPE_NUMBER, Sparql.TYPE_VARIABLE, Sparql.TYPE_ARITHMETIC])
           .appendField("*");
-      this.setOutput(true, "Math");
+      this.setOutput(true, Sparql.TYPE_ARITHMETIC);
       this.setColour(50);
-      this.setTooltip("Multiplies two numbers or variables.");
+      this.setTooltip("Name: Multiply\nMultiplies two numbers or variables.\nCan be connected by: Arithmetic, Variable, Number.");
       this.setInputsInline(true);
       this.setHelpUrl("");
     }
   });
-
   
 block('sparql_divide', {
     init: function() {
       this.appendValueInput("DIVIDEND")
-          .setCheck(["Number", "Variable", "Math", "String", "VARIABLE"])
+          .setCheck([Sparql.TYPE_NUMBER, Sparql.TYPE_VARIABLE, Sparql.TYPE_ARITHMETIC])
       this.appendValueInput("DIVISOR")
-          .setCheck(["Number", "Variable", "Math", "String", "VARIABLE"])
+          .setCheck([Sparql.TYPE_NUMBER, Sparql.TYPE_VARIABLE, Sparql.TYPE_ARITHMETIC])
           .appendField("/");
-      this.setOutput(true, "Math");
+      this.setOutput(true, Sparql.TYPE_ARITHMETIC);
       this.setColour(50);
-      this.setTooltip("Divides one number or variable by another.");
+      this.setTooltip("Name: Divide\nDivides one number or variable by another.\nCan be connected by: Arithmetic, Variable, Number.");
       this.setInputsInline(true);
       this.setHelpUrl("");
     }
@@ -66,7 +66,7 @@ block('sparql_divide', {
 block('sparql_comparison', {
     init: function() {
       this.appendValueInput("OPERAND1")
-          .setCheck(["Number", "Variable", "Math", "String", "VARIABLE"]);
+          .setCheck([Sparql.TYPE_NUMBER, Sparql.TYPE_VARIABLE, Sparql.TYPE_ARITHMETIC, Sparql.TYPE_STRING])
       this.appendDummyInput()
           .appendField(new Blockly.FieldDropdown([
             ["=", "="], 
@@ -77,14 +77,10 @@ block('sparql_comparison', {
             ["<= ", "<="]
           ]), "OPERATOR");
       this.appendValueInput("OPERAND2")
-          .setCheck(["Number", "Variable", "Math", "String", "VARIABLE"]);
-      this.setOutput(true, "Boolean");
+          .setCheck([Sparql.TYPE_NUMBER, Sparql.TYPE_VARIABLE, Sparql.TYPE_ARITHMETIC, Sparql.TYPE_STRING])
+      this.setOutput(true, Sparql.TYPE_BOOLEAN);
       this.setColour(210);
-      this.setTooltip("Comparison operations: =, !=, >, <, >=, <=.");
+      this.setTooltip("Name: Comparison\nComparison operations: =, !=, >, <, >=, <=.\nCan be connected by: Arithmetic, Variable, Number, String, Aggregate.");
       this.setHelpUrl("");
     }
   });
-
-  
-  
-  

@@ -1,5 +1,6 @@
 import { block } from '../core/blocks.js';
 import Blockly from 'blockly';
+import { Sparql } from '../generator/sparqlGenerator.js';
 
 // Self-defined infinite dropdown
 class FieldDropdownDynamic extends Blockly.FieldDropdown {
@@ -28,7 +29,7 @@ block('sparql_prefix_list', {
           .appendField(new FieldDropdownDynamic(), "PREFIX");
       this.setOutput(true, "Prefix list");
       this.setColour(290);
-      this.setTooltip('');
+      this.setTooltip("Name: Prefix list\nPrefixes for SPARQL queries.");
       this.setHelpUrl('');
       window.addEventListener('prefixesChanged', () => {
         console.log('prefixesChanged event detected');
@@ -59,9 +60,10 @@ block('sparql_prefix', {
     init: function() {
       this.appendDummyInput()
           .appendField("PREFIXES");
-      this.setNextStatement(true, null);
+      // this.setPreviousStatement(true, Sparql.TYPE_KEYWORD);
+      this.setNextStatement(true, Sparql.TYPE_KEYWORD);
       this.setColour(290);
-      this.setTooltip("Define PREFIXES for SPARQL queries.");
+      this.setTooltip("Name: Prefix\nDefine PREFIXES for SPARQL queries. \nCan be connected by: Keyword(Select).");
       this.setHelpUrl('');
       this.setMutator(new Blockly.icons.MutatorIcon(['prefix_field'], this));
       this.prefixCount_ = 0;

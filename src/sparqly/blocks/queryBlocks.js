@@ -1,18 +1,19 @@
 import Blockly from 'blockly';
 import { block } from '../core/blocks.js';
+import { Sparql } from '../generator/sparqlGenerator.js';
   
 block('sparql_select', {
     init: function() {
       this.appendValueInput("VARIABLES")
-          .setCheck(["VARIABLE", "DISTINCT", "SYMBOL"])
+          .setCheck([Sparql.TYPE_VARIABLE, Sparql.TYPE_KEYWORD])
           .appendField("SELECT");
       this.appendStatementInput("WHERE")
-          .setCheck(["VARIABLE", "Variable", "Property"])
+          .setCheck(Sparql.TYPE_PATTERN)
           .appendField("WHERE");
-      this.setPreviousStatement(true, 'Prefix');
-      this.setNextStatement(true, 'Condition');
+      this.setPreviousStatement(true, Sparql.TYPE_KEYWORD);
+      this.setNextStatement(true, Sparql.TYPE_KEYWORD);
       this.setColour(230);
-      this.setTooltip("Perform a SPARQL select query.");
+      this.setTooltip("Name: Select\nPerform a SPARQL select query.\nFirst input can be connected by: Variable;\nSecond input can be connected by: Pattern.");
       this.setHelpUrl(""); 
     }
   });
@@ -21,10 +22,11 @@ block('sparql_select', {
 block('sparql_distinct_reduced', {
     init: function() {
         this.appendValueInput("VARIABLE")
+            .setCheck(Sparql.TYPE_VARIABLE)
             .appendField(new Blockly.FieldDropdown([["DISTINCT", "DISTINCT"], ["REDUCED", "REDUCED"]]), "DISTINCT");
-        this.setOutput(true);
+        this.setOutput(true, Sparql.TYPE_KEYWORD);
         this.setColour(230);
-        this.setTooltip("DISTINCT/REDUCED keyword seletion block connects to Select variables option.");
+        this.setTooltip("Name: Distinct/Reduced\nDISTINCT/REDUCED keyword selection block connects to Select variables option.\nCan be connected by: Variable.");
     }
 });
 

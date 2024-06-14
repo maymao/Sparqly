@@ -1,5 +1,6 @@
 import Blockly from 'blockly';
 import { block } from '../core/blocks.js';
+import { Sparql } from '../generator/sparqlGenerator.js';
 
 // 弃用
 block('sparql_class', {
@@ -32,11 +33,12 @@ block('sparql_class_with_property', {
   init: function() {
     this.appendValueInput("CLASS_NAME")
         .appendField("Class name")
+        .setCheck(Sparql.TYPE_VARIABLE);
     this.appendStatementInput("PROPERTIES")
-        .setCheck("Class Property")
+        .setCheck(Sparql.TYPE_CLASSPROPERTY)
     this.setColour(160);
-    this.setTooltip("Class with property block, connected by properties.");
-    this.setPreviousStatement(true, "VARIABLE");
-    this.setNextStatement(true, "VARIABLE");
+    this.setTooltip("Name: Triple Pattern\nA triple pattern.\nCan be connected by: SubTriple.");
+    this.setPreviousStatement(true, Sparql.TYPE_PATTERN);
+    this.setNextStatement(true, Sparql.TYPE_PATTERN);
   }
 });

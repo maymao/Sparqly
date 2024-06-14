@@ -1,16 +1,18 @@
 import Blockly from 'blockly';
 import { block } from '../core/blocks.js';
+import { Sparql } from '../generator/sparqlGenerator.js';
 
 block('sparql_and', {
     init: function() {
       this.appendValueInput("OPERAND1")
-          .setCheck(["Boolean", "Variable"])
+          .setCheck(Sparql.TYPE_BOOLEAN)
+          // .setCheck(["Boolean", "Variable"])
       this.appendValueInput("OPERAND2")
-          .setCheck(["Boolean", "Variable"])
+          .setCheck(Sparql.TYPE_BOOLEAN)
           .appendField("AND");
-      this.setOutput(true, "Boolean");
+      this.setOutput(true, Sparql.TYPE_BOOLEAN);
       this.setColour(900);
-      this.setTooltip("Logical AND operation.");
+      this.setTooltip("Name: And\nLogical AND operation.\nCan be connected by: Boolean.");
       this.setHelpUrl("");
       this.setInputsInline(true);
     }
@@ -20,13 +22,13 @@ block('sparql_and', {
 block('sparql_or', {
     init: function() {
       this.appendValueInput("OPERAND1")
-          .setCheck(["Boolean", "Variable"])
+          .setCheck(Sparql.TYPE_BOOLEAN)
       this.appendValueInput("OPERAND2")
-          .setCheck(["Boolean", "Variable"])
+          .setCheck(Sparql.TYPE_BOOLEAN)
           .appendField("OR");
-      this.setOutput(true, "Boolean");
+      this.setOutput(true, Sparql.TYPE_BOOLEAN);
       this.setColour(900);
-      this.setTooltip("Logical OR operation.");
+      this.setTooltip("Name: Or\nLogical OR operation.\nCan be connected by: Boolean.");
       this.setInputsInline(true);
       this.setHelpUrl("");
     }
@@ -35,11 +37,11 @@ block('sparql_or', {
 block('sparql_not', {
     init: function() {
       this.appendValueInput("OPERAND")
-          .setCheck(["Boolean", "Variable"])
+          .setCheck(Sparql.TYPE_BOOLEAN)
           .appendField("NOT");
-      this.setOutput(true, "Boolean");
+      this.setOutput(true, Sparql.TYPE_BOOLEAN);
       this.setColour(900);
-      this.setTooltip("Logical NOT operation.");
+      this.setTooltip("Name: Not\nLogical NOT operation.\nCan be connected by: Boolean.");
       this.setInputsInline(true);
       this.setHelpUrl("");
     }
@@ -49,17 +51,17 @@ block('sparql_not', {
 block('sparql_if', {
   init: function() {
     this.appendValueInput('CONDITION')
-        .setCheck('Boolean')
+        .setCheck(Sparql.TYPE_BOOLEAN)
         .appendField('IF');
     this.appendValueInput('TRUE_VALUE')
-        .setCheck('String')
+        .setCheck([Sparql.TYPE_BOOLEAN, Sparql.TYPE_VARIABLE, Sparql.TYPE_NUMBER, Sparql.TYPE_STRING, Sparql.TYPE_FUNCTIONCALL, Sparql.TYPE_ARITHMETIC])
         .appendField('True');
     this.appendValueInput('FALSE_VALUE')
-        .setCheck('String')
+        .setCheck([Sparql.TYPE_BOOLEAN, Sparql.TYPE_VARIABLE, Sparql.TYPE_NUMBER, Sparql.TYPE_STRING, Sparql.TYPE_FUNCTIONCALL, Sparql.TYPE_ARITHMETIC])
         .appendField('False');
-    this.setOutput(true, 'String');
+    this.setOutput(true, Sparql.TYPE_BOOLEAN);
     this.setColour(210);
-    this.setTooltip('Returns the true value if the condition is true, otherwise returns the false value.');
+    this.setTooltip("Name: If\nReturns the true value if the condition is true, otherwise returns the false value.\nCan be connected by: Boolean.");
     this.setHelpUrl('');
   }
 });

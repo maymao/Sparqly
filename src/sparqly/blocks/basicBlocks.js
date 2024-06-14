@@ -1,19 +1,21 @@
 import Blockly from 'blockly';
 import { block } from '../core/blocks.js';
+import { Sparql } from '../generator/sparqlGenerator.js';
+import { Spa } from '@mui/icons-material';
 
 block('sparql_braces', {
     init: function() {
         this.appendDummyInput()
             .appendField("{");
         this.appendStatementInput("PATTERN")
-            .setCheck(null);
+            .setCheck(Sparql.TYPE_PATTERN);
         this.appendDummyInput()
             .appendField("}");
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setOutput(true, null);
+        // this.setPreviousStatement(true, Sparql.TYPE_PATTERN);
+        // this.setNextStatement(true, Sparql.TYPE_PATTERN);
+        this.setOutput(true, Sparql.TYPE_PATTERN);
         this.setColour(120);
-        this.setTooltip("Group a set of triple patterns.");
+        this.setTooltip("Name: Braces\nGroup a set of triple patterns.\nCan be connected by: Pattern.");
     }
     });
   
@@ -34,9 +36,10 @@ block('sparql_number', {
     init: function() {
       this.appendDummyInput()
           .appendField(new Blockly.FieldNumber(0), "NUMBER");
-      this.setOutput(true, ["Number", "Variable", "Math"]);
+      // this.setOutput(true, ["Number", "Variable", "Math"]);
+      this.setOutput(true, Sparql.TYPE_NUMBER);
       this.setColour(180);
-      this.setTooltip("A number.");
+      this.setTooltip("Name: Number\nA number.");
     }
   });
 
@@ -44,8 +47,12 @@ block('sparql_string', {
     init: function() {
       this.appendDummyInput()
           .appendField(new Blockly.FieldTextInput("text"), "STRING");
-      this.setOutput(true, ["String", "Variable", "Math"]);
+      this.setOutput(true, Sparql.TYPE_STRING);
+      // this.setOutput(true, ["String", "Variable", "Math"]);
       this.setColour(180);
-      this.setTooltip("A string.");
+      this.setTooltip("Name: String\nA string.");
     }
   });
+
+
+

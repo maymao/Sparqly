@@ -104,7 +104,7 @@ const extendSparqlWithVariableType = (Sparql) => {
     
     let code = variable1 + ':' + variable2;  // variable1:variable2
     if (nameCode) {
-      console.log(nameCode);
+      // console.log(nameCode);
       if (nameCode.startsWith('?')) {
         let varNames = JSON.parse(localStorage.getItem('varNames')) || {};
         varNames[nameCode] = true;
