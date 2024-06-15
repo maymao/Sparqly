@@ -1,6 +1,5 @@
 import Blockly from 'blockly/core';
 
-
 const Sparql = new Blockly.Generator('Sparql');
 
 Sparql.addReservedWords('');

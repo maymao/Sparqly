@@ -3,13 +3,17 @@ const extendSparqlWithPrefix = (Sparql) => {
         var code = '';
         let prefixes = {};
         for (let i = 0; i < block.prefixCount_; i++) {
-            const prefixLabel = block.getFieldValue('PREFIX_LABEL' + i);
-            const uri = block.getFieldValue('URI' + i);
-            if (prefixLabel && uri) {
-                const uniqueKey = 'prefix_' + i;
-                prefixes[uniqueKey] = prefixLabel;
-                code += `PREFIX ${prefixLabel}: <${uri}>\n`;
-            }
+            const prefixLabel = block.getFieldValue('PREFIX_LABEL' + i) || '';
+            const uri = block.getFieldValue('URI' + i) || '';
+            // if (prefixLabel && uri) {
+            //     const uniqueKey = 'prefix_' + i;
+            //     prefixes[uniqueKey] = prefixLabel;
+            //     code += `PREFIX ${prefixLabel}: <${uri}>\n`;
+            // }             
+            const uniqueKey = 'prefix_' + i;
+            prefixes[uniqueKey] = prefixLabel;
+            code += `PREFIX ${prefixLabel}: <${uri}>\n`;
+
         }
         localStorage.setItem('prefixes', JSON.stringify(prefixes));
         return code;

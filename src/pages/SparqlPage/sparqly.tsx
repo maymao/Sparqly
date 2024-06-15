@@ -82,6 +82,7 @@ import myTheme from '../../sparqly/core/theme.js';
 import { Add, ChevronLeft, ChevronRight, Remove } from '@mui/icons-material';
 import { Log } from '@antv/g2/lib/data';
 import React from 'react';
+import { clear } from 'console';
 
 
 export interface VisDataProps {
@@ -232,111 +233,233 @@ WHERE {
   const decreaseFontSize = () => {
     setFontSize((prevSize) => Math.max(prevSize - 2, 8)); // Decrease font size, min 8px
   };
-
-  const pattern1 = `
-    <block type="sparql_prefix" x="10" y="10">
-      <mutation prefixes="4"></mutation>
-      <field name="PREFIX_LABEL0">rdf</field>
-      <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
-      <field name="PREFIX_LABEL1">rdfs</field>
-      <field name="URI1">http://www.w3.org/2000/01/rdf-schema#</field>
-      <field name="PREFIX_LABEL2">owl</field>
-      <field name="URI2">http://www.w3.org/2002/07/owl#</field>
-      <field name="PREFIX_LABEL3"> </field>
-      <field name="URI3">http://www.semwebtech.org/mondial/10/meta#</field>
-      <next>
-        <block type="sparql_select">
-          <value name="VARIABLES">
-            <block type="sparql_variable_select">
-              <field name="VARIABLE">name</field>
-              <value name="NEXT_VARIABLE">
-                <block type="sparql_variable_select">
-                  <field name="VARIABLE">population</field>
-                </block>
-              </value>
-            </block>
-          </value>
-          <statement name="WHERE">
-            <block type="sparql_class_with_property">
-              <value name="CLASS_NAME">
-                <block type="sparql_variable_confirmed">
-                  <field name="VARIABLE">country</field>
-                </block>
-              </value>
-              <statement name="PROPERTIES">
-                <block type="sparql_properties_in_class">
-                  <value name="INPUT">
-                    <block type="sparql_variable_type">
-                      <field name="VARIABLE2">type</field>
-                      <value name="TYPE1">
-                        <block type="sparql_prefix_list">
-                          <field name="PREFIX">prefix_0</field>
-                        </block>
-                      </value>
-                      <value name="TYPE2">
-                        <block type="sparql_variable_typename">
-                          <field name="VARIABLE">Country</field>
-                        </block>
-                      </value>
-                    </block>
-                  </value>
-                  <next>
-                    <block type="sparql_properties_in_class">
-                      <value name="INPUT">
-                        <block type="sparql_variable_type">
-                          <field name="VARIABLE2">name</field>
-                          <value name="TYPE2">
-                            <block type="sparql_variable_varname">
-                              <field name="VARIABLE">?name</field>
-                            </block>
-                          </value>
-                        </block>
-                      </value>
-                      <next>
-                        <block type="sparql_properties_in_class">
-                          <value name="INPUT">
-                            <block type="sparql_variable_type">
-                              <field name="VARIABLE2">population</field>
-                              <value name="TYPE2">
-                                <block type="sparql_variable_varname">
-                                  <field name="VARIABLE">?population</field>
-                                </block>
-                              </value>
-                            </block>
-                          </value>
-                        </block>
-                      </next>
-                    </block>
-                  </next>
-                </block>
-              </statement>
-            </block>
-          </statement>
-          <next>
-            <block type="sparql_condition">
-              <statement name="CONDITIONS">
-                <block type="sparql_orderby">
-                  <field name="ORDER">ASC</field>
-                  <field name="VARIABLE">population</field>
-                </block>
-              </statement>
-            </block>
-          </next>
-        </block>
-      </next>
-    </block>
-  `;
-  
-  const patterns = [];
   
   const getToolboxXML = () => {
     return `
-      <xml xmlns="https://developers.google.com/blockly/xml">
+<xml xmlns="https://developers.google.com/blockly/xml">
   
-        <category name="Examples" categorystyle="examples_category"></category>
+<category name="Examples" categorystyle="examples_category"></category>
 
-<category name="Pattern3" categorystyle="patterns_category">
+<category name="Pattern1" categorystyle="patterns_category">
+  <block type="sparql_variable_select">
+    <field name="VARIABLE">?name</field>
+    <value name="NEXT_VARIABLE">
+      <block type="sparql_variable_select">
+        <field name="VARIABLE">?population</field>
+      </block>
+    </value>
+  </block>
+
   <block type="sparql_prefix">
+    <mutation prefixes="4"></mutation>
+    <field name="PREFIX_LABEL0">rdf</field>
+    <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+    <field name="PREFIX_LABEL1">rdfs</field>
+    <field name="URI1">http://www.w3.org/2000/01/rdf-schema#</field>
+    <field name="PREFIX_LABEL2">owl</field>
+    <field name="URI2">http://www.w3.org/2002/07/owl#</field>
+    <field name="PREFIX_LABEL3"> </field>
+    <field name="URI3">http://www.semwebtech.org/mondial/10/meta#</field>
+    <next>
+      <block type="sparql_select">
+        <value name="VARIABLES">
+          <block type="sparql_variable_select_demo">
+            <field name="VARIABLE">name</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select_demo">
+                <field name="VARIABLE">population</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="WHERE">
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">country</field>
+              </block>
+            </value>
+            <statement name="PROPERTIES">
+              <block type="sparql_properties_in_class">
+                <value name="INPUT">
+                  <block type="sparql_variable_type">
+                    <field name="VARIABLE2">type</field>
+                    <value name="TYPE1">
+                      <block type="sparql_prefix_list">
+                        <field name="PREFIX">prefix_0</field>
+                      </block>
+                    </value>
+                    <value name="TYPE2">
+                      <block type="sparql_variable_typename">
+                        <field name="LABEL"> </field>
+                        <field name="VARIABLE">Country</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">name</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">name</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">population</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">population</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </statement>
+        <next>
+          <block type="sparql_condition">
+            <statement name="CONDITIONS">
+              <block type="sparql_orderby">
+                <field name="ORDER">DESC</field>
+                <field name="VARIABLE">population</field>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+
+</category>
+<category name="Pattern2" categorystyle="patterns_category">
+  <block type="sparql_variable_select">
+    <field name="VARIABLE">?inflation</field>
+    <value name="NEXT_VARIABLE">
+      <block type="sparql_variable_select">
+        <field name="VARIABLE">?unemployment</field>
+      </block>
+    </value>
+  </block>
+
+  <block type="sparql_prefix">
+    <mutation prefixes="2"></mutation>
+    <field name="PREFIX_LABEL0">rdf</field>
+    <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+    <field name="PREFIX_LABEL1"></field>
+    <field name="URI1">http://www.semwebtech.org/mondial/10/meta#</field>
+    <next>
+      <block type="sparql_select">
+        <value name="VARIABLES">
+          <block type="sparql_variable_select_demo">
+            <field name="VARIABLE">inflation</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select_demo">
+                <field name="VARIABLE">unemployment</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="WHERE">
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">c</field>
+              </block>
+            </value>
+            <statement name="PROPERTIES">
+              <block type="sparql_properties_in_class">
+                <value name="INPUT">
+                  <block type="sparql_variable_type">
+                    <field name="VARIABLE2">type</field>
+                    <value name="TYPE1">
+                      <block type="sparql_prefix_list">
+                        <field name="PREFIX">prefix_0</field>
+                      </block>
+                    </value>
+                    <value name="TYPE2">
+                      <block type="sparql_variable_typename">
+                        <field name="LABEL"> </field>
+                        <field name="VARIABLE">Country</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">inflation</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">inflation</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">unemployment</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">unemployment</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </statement>
+        <next>
+          <block type="sparql_condition">
+            <statement name="CONDITIONS">
+              <block type="sparql_orderby">
+                <field name="ORDER">DESC</field>
+                <field name="VARIABLE">population</field>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</category>
+
+<category name="Pattern3" categorystyle="patterns_category">         
+    <block type="sparql_variable_select">
+      <field name="VARIABLE">?continent</field>
+      <value name="NEXT_VARIABLE">
+        <block type="sparql_variable_select">
+          <field name="VARIABLE">?country</field>
+          <value name="NEXT_VARIABLE">
+            <block type="sparql_variable_select">
+              <field name="VARIABLE">?population</field>
+            </block>
+          </value>
+        </block>
+      </value>
+    </block>
+
+  <block type="sparql_prefix" x="110" y="10">
     <mutation prefixes="2"></mutation>
     <field name="PREFIX_LABEL0">rdf</field>
     <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
@@ -345,14 +468,14 @@ WHERE {
     <next>
       <block type="sparql_select">
         <value name="VARIABLES">
-          <block type="sparql_variable_select">
-            <field name="VARIABLE">?continent</field>
+          <block type="sparql_variable_select_demo">
+            <field name="VARIABLE">continent</field>
             <value name="NEXT_VARIABLE">
-              <block type="sparql_variable_select">
-                <field name="VARIABLE">?country</field>
+              <block type="sparql_variable_select_demo">
+                <field name="VARIABLE">country</field>
                 <value name="NEXT_VARIABLE">
-                  <block type="sparql_variable_select">
-                    <field name="VARIABLE">?population</field>
+                  <block type="sparql_variable_select_demo">
+                    <field name="VARIABLE">population</field>
                   </block>
                 </value>
               </block>
@@ -378,6 +501,7 @@ WHERE {
                     </value>
                     <value name="TYPE2">
                       <block type="sparql_variable_typename">
+                        <field name="LABEL"> </field>
                         <field name="VARIABLE">Country</field>
                       </block>
                     </value>
@@ -486,6 +610,7 @@ WHERE {
                             </value>
                             <value name="TYPE2">
                               <block type="sparql_variable_typename">
+                                <field name="LABEL"> </field>
                                 <field name="VARIABLE">Continent</field>
                               </block>
                             </value>
@@ -516,11 +641,325 @@ WHERE {
       </block>
     </next>
   </block>
+
 </category>
 
 
+<category name="Pattern4" categorystyle="patterns_category">
+    <block type="sparql_variable_select">
+      <field name="VARIABLE">?year</field>
+      <value name="NEXT_VARIABLE">
+        <block type="sparql_variable_select">
+          <field name="VARIABLE">?population</field>
+          <value name="NEXT_VARIABLE">
+            <block type="sparql_variable_select">
+              <field name="VARIABLE">?country</field>
+            </block>
+          </value>
+        </block>
+      </value>
+    </block>
 
-<category name="OneMany" categorystyle="patterns_category">
+  <block type="sparql_prefix">
+    <mutation prefixes="2"></mutation>
+    <field name="PREFIX_LABEL0">rdf</field>
+    <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+    <field name="PREFIX_LABEL1"></field>
+    <field name="URI1">http://www.semwebtech.org/mondial/10/meta#</field>
+    <next>
+      <block type="sparql_select">
+        <value name="VARIABLES">
+          <block type="sparql_variable_select_demo">
+            <field name="VARIABLE">year</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select_demo">
+                <field name="VARIABLE">population</field>
+                <value name="NEXT_VARIABLE">
+                  <block type="sparql_variable_select_demo">
+                    <field name="VARIABLE">country</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="WHERE">
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">c</field>
+              </block>
+            </value>
+            <statement name="PROPERTIES">
+              <block type="sparql_properties_in_class">
+                <value name="INPUT">
+                  <block type="sparql_variable_type">
+                    <field name="VARIABLE2">type</field>
+                    <value name="TYPE1">
+                      <block type="sparql_prefix_list">
+                        <field name="PREFIX">prefix_0</field>
+                      </block>
+                    </value>
+                    <value name="TYPE2">
+                      <block type="sparql_variable_typename">
+                        <field name="LABEL"> </field>
+                        <field name="VARIABLE">Country</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">name</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">country</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">encompassed</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">conclass</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">hadPopulation</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">py</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="sparql_class_with_property">
+                <value name="CLASS_NAME">
+                  <block type="sparql_variable_confirmed">
+                    <field name="VARIABLE">conclass</field>
+                  </block>
+                </value>
+                <statement name="PROPERTIES">
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">name</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">continent</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                  </block>
+                </statement>
+                <next>
+                  <block type="sparql_class_with_property">
+                    <value name="CLASS_NAME">
+                      <block type="sparql_variable_confirmed">
+                        <field name="VARIABLE">py</field>
+                      </block>
+                    </value>
+                    <statement name="PROPERTIES">
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">type</field>
+                            <value name="TYPE1">
+                              <block type="sparql_prefix_list">
+                                <field name="PREFIX">prefix_0</field>
+                              </block>
+                            </value>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_typename">
+                                <field name="LABEL"> </field>
+                                <field name="VARIABLE">PopulationCount</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">year</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">year</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="sparql_properties_in_class">
+                                <value name="INPUT">
+                                  <block type="sparql_variable_type">
+                                    <field name="VARIABLE2">value</field>
+                                    <value name="TYPE2">
+                                      <block type="sparql_variable_varname">
+                                        <field name="VARIABLE">population</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="sparql_filter">
+                        <value name="FILTER_CONDITION">
+                          <block type="sparql_comparison">
+                            <field name="OPERATOR">=</field>
+                            <value name="OPERAND1">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">continent</field>
+                              </block>
+                            </value>
+                            <value name="OPERAND2">
+                              <block type="sparql_string">
+                                <field name="STRING">Europe</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_filter">
+                            <value name="FILTER_CONDITION">
+                              <block type="sparql_existence">
+                                <field name="EXISTS">EXISTS</field>
+                                <value name="Variables">
+                                  <block type="sparql_braces">
+                                    <statement name="PATTERN">
+                                      <block type="sparql_class_with_property">
+                                        <value name="CLASS_NAME">
+                                          <block type="sparql_variable_confirmed">
+                                            <field name="VARIABLE">c</field>
+                                          </block>
+                                        </value>
+                                        <statement name="PROPERTIES">
+                                          <block type="sparql_properties_in_class">
+                                            <value name="INPUT">
+                                              <block type="sparql_variable_type">
+                                                <field name="VARIABLE2">hadPopulation</field>
+                                                <value name="TYPE2">
+                                                  <block type="sparql_variable_varname">
+                                                    <field name="VARIABLE">hp</field>
+                                                  </block>
+                                                </value>
+                                              </block>
+                                            </value>
+                                          </block>
+                                        </statement>
+                                        <next>
+                                          <block type="sparql_class_with_property">
+                                            <value name="CLASS_NAME">
+                                              <block type="sparql_variable_confirmed">
+                                                <field name="VARIABLE">hp</field>
+                                              </block>
+                                            </value>
+                                            <statement name="PROPERTIES">
+                                              <block type="sparql_properties_in_class">
+                                                <value name="INPUT">
+                                                  <block type="sparql_variable_type">
+                                                    <field name="VARIABLE2">value</field>
+                                                    <value name="TYPE2">
+                                                      <block type="sparql_variable_varname">
+                                                        <field name="VARIABLE">hpv</field>
+                                                      </block>
+                                                    </value>
+                                                  </block>
+                                                </value>
+                                              </block>
+                                            </statement>
+                                            <next>
+                                              <block type="sparql_filter">
+                                                <value name="FILTER_CONDITION">
+                                                  <block type="sparql_comparison">
+                                                    <field name="OPERATOR">&gt;</field>
+                                                    <value name="OPERAND1">
+                                                      <block type="sparql_variable_varname">
+                                                        <field name="VARIABLE">hpv</field>
+                                                      </block>
+                                                    </value>
+                                                    <value name="OPERAND2">
+                                                      <block type="sparql_number">
+                                                        <field name="NUMBER">20000000</field>
+                                                      </block>
+                                                    </value>
+                                                  </block>
+                                                </value>
+                                              </block>
+                                            </next>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </statement>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </statement>
+        <next>
+          <block type="sparql_condition">
+            <statement name="CONDITIONS">
+              <block type="sparql_orderby">
+                <field name="ORDER"></field>
+                <field name="VARIABLE">year</field>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</category>
+<category name="Pattern5" categorystyle="patterns_category">
+
+    <block type="sparql_variable_select">
+      <field name="VARIABLE">?country1</field>
+      <value name="NEXT_VARIABLE">
+        <block type="sparql_variable_select">
+          <field name="VARIABLE">?country2</field>
+          <value name="NEXT_VARIABLE">
+            <block type="sparql_variable_select">
+              <field name="VARIABLE">?length</field>
+            </block>
+          </value>
+        </block>
+      </value>
+    </block>
 
   <block type="sparql_prefix">
     <mutation prefixes="4"></mutation>
@@ -535,14 +974,329 @@ WHERE {
     <next>
       <block type="sparql_select">
         <value name="VARIABLES">
-          <block type="sparql_variable_select">
-            <field name="VARIABLE">?country</field>
+          <block type="sparql_variable_select_demo">
+            <field name="VARIABLE">country1</field>
             <value name="NEXT_VARIABLE">
-              <block type="sparql_variable_select">
-                <field name="VARIABLE">?city</field>
+              <block type="sparql_variable_select_demo">
+                <field name="VARIABLE">country2</field>
                 <value name="NEXT_VARIABLE">
-                  <block type="sparql_variable_select">
-                    <field name="VARIABLE">?cityPop</field>
+                  <block type="sparql_variable_select_demo">
+                    <field name="VARIABLE">length</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="WHERE">
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">b</field>
+              </block>
+            </value>
+            <statement name="PROPERTIES">
+              <block type="sparql_properties_in_class">
+                <value name="INPUT">
+                  <block type="sparql_variable_type">
+                    <field name="VARIABLE2">type</field>
+                    <value name="TYPE1">
+                      <block type="sparql_prefix_list">
+                        <field name="PREFIX">prefix_0</field>
+                      </block>
+                    </value>
+                    <value name="TYPE2">
+                      <block type="sparql_variable_typename">
+                        <field name="LABEL"> </field>
+                        <field name="VARIABLE">Border</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">isBorderOf</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">c1</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">isBorderOf</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">c2</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">length</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">length</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="sparql_class_with_property">
+                <value name="CLASS_NAME">
+                  <block type="sparql_variable_confirmed">
+                    <field name="VARIABLE">c1</field>
+                  </block>
+                </value>
+                <statement name="PROPERTIES">
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">type</field>
+                        <value name="TYPE1">
+                          <block type="sparql_prefix_list">
+                            <field name="PREFIX">prefix_0</field>
+                          </block>
+                        </value>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_typename">
+                            <field name="LABEL"> </field>
+                            <field name="VARIABLE">Country</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">carCode</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">cc1</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">name</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">country1</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="sparql_class_with_property">
+                    <value name="CLASS_NAME">
+                      <block type="sparql_variable_confirmed">
+                        <field name="VARIABLE">c2</field>
+                      </block>
+                    </value>
+                    <statement name="PROPERTIES">
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">type</field>
+                            <value name="TYPE1">
+                              <block type="sparql_prefix_list">
+                                <field name="PREFIX">prefix_0</field>
+                              </block>
+                            </value>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_typename">
+                                <field name="LABEL"> </field>
+                                <field name="VARIABLE">Country</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">carCode</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">cc2</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="sparql_properties_in_class">
+                                <value name="INPUT">
+                                  <block type="sparql_variable_type">
+                                    <field name="VARIABLE2">name</field>
+                                    <value name="TYPE2">
+                                      <block type="sparql_variable_varname">
+                                        <field name="VARIABLE">country2</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="sparql_properties_in_class">
+                                    <value name="INPUT">
+                                      <block type="sparql_variable_type">
+                                        <field name="VARIABLE2">encompassed</field>
+                                        <value name="TYPE2">
+                                          <block type="sparql_variable_varname">
+                                            <field name="VARIABLE">conclass</field>
+                                          </block>
+                                        </value>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="sparql_class_with_property">
+                        <value name="CLASS_NAME">
+                          <block type="sparql_variable_confirmed">
+                            <field name="VARIABLE">conclass</field>
+                          </block>
+                        </value>
+                        <statement name="PROPERTIES">
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">name</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">continent</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </statement>
+                        <next>
+                          <block type="sparql_filter">
+                            <value name="FILTER_CONDITION">
+                              <block type="sparql_comparison">
+                                <field name="OPERATOR">&lt;</field>
+                                <value name="OPERAND1">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">country1</field>
+                                  </block>
+                                </value>
+                                <value name="OPERAND2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">country2</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="sparql_filter">
+                                <value name="FILTER_CONDITION">
+                                  <block type="sparql_comparison">
+                                    <field name="OPERATOR">=</field>
+                                    <value name="OPERAND1">
+                                      <block type="sparql_variable_varname">
+                                        <field name="VARIABLE">continent</field>
+                                      </block>
+                                    </value>
+                                    <value name="OPERAND2">
+                                      <block type="sparql_string">
+                                        <field name="STRING">South America</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+</category>
+
+<category name="One-Many" categorystyle="patterns_category">
+    <block type="sparql_variable_select">
+      <field name="VARIABLE">?country</field>
+      <value name="NEXT_VARIABLE">
+        <block type="sparql_variable_select">
+          <field name="VARIABLE">?city</field>
+          <value name="NEXT_VARIABLE">
+            <block type="sparql_variable_select">
+              <field name="VARIABLE">?cityPop</field>
+            </block>
+          </value>
+        </block>
+      </value>
+    </block>
+
+    <block type="sparql_variable_select">
+      <field name="VARIABLE">?cityPop</field>
+    </block>
+
+    <block type="sparql_variable_select">
+      <field name="VARIABLE">?countryPop</field>
+    </block>
+
+  <block type="sparql_prefix">
+    <mutation prefixes="4"></mutation>
+    <field name="PREFIX_LABEL0">rdf</field>
+    <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+    <field name="PREFIX_LABEL1">rdfs</field>
+    <field name="URI1">http://www.w3.org/2000/01/rdf-schema#</field>
+    <field name="PREFIX_LABEL2">owl</field>
+    <field name="URI2">http://www.w3.org/2002/07/owl#</field>
+    <field name="PREFIX_LABEL3"> </field>
+    <field name="URI3">http://www.semwebtech.org/mondial/10/meta#</field>
+    <next>
+      <block type="sparql_select">
+        <value name="VARIABLES">
+          <block type="sparql_variable_select_demo">
+            <field name="VARIABLE">country</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select_demo">
+                <field name="VARIABLE">city</field>
+                <value name="NEXT_VARIABLE">
+                  <block type="sparql_variable_select_demo">
+                    <field name="VARIABLE">cityPop</field>
                   </block>
                 </value>
               </block>
@@ -568,6 +1322,7 @@ WHERE {
                     </value>
                     <value name="TYPE2">
                       <block type="sparql_variable_typename">
+                        <field name="LABEL"> </field>
                         <field name="VARIABLE">City</field>
                       </block>
                     </value>
@@ -636,6 +1391,7 @@ WHERE {
                         </value>
                         <value name="TYPE2">
                           <block type="sparql_variable_typename">
+                            <field name="LABEL"> </field>
                             <field name="VARIABLE">Country</field>
                           </block>
                         </value>
@@ -677,8 +1433,8 @@ WHERE {
                       <block type="sparql_comparison">
                         <field name="OPERATOR">&gt;</field>
                         <value name="OPERAND1">
-                          <block type="sparql_variable_select">
-                            <field name="VARIABLE">?cityPop</field>
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">cityPop</field>
                           </block>
                         </value>
                         <value name="OPERAND2">
@@ -694,8 +1450,8 @@ WHERE {
                           <block type="sparql_comparison">
                             <field name="OPERATOR">&gt;</field>
                             <value name="OPERAND1">
-                              <block type="sparql_variable_select">
-                                <field name="VARIABLE">?countryPop</field>
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">countryPop</field>
                               </block>
                             </value>
                             <value name="OPERAND2">
@@ -718,27 +1474,333 @@ WHERE {
   </block>
 </category>
 
-    
+<category name="Many-Many" categorystyle="patterns_category">
 
-<category name="--" categorystyle="patterns_category">
-        <block type="sparql_filter">
-            <value name="FILTER_CONDITION">
-            <block type="sparql_comparison">
-                <field name="OPERATOR">&gt;</field>
-                <value name="OPERAND1">
-                <block type="sparql_variable_varname">
-                    <field name="VARIABLE">?cityPop</field>
-                </block>
-                </value>
-                <value name="OPERAND2">
-                <block type="sparql_number">
-                    <field name="NUMBER">5000000</field>
-                </block>
-                </value>
-            </block>
+  <block type="sparql_variable_select" x="10" y="50">
+    <field name="VARIABLE">?continent</field>
+    <value name="NEXT_VARIABLE">
+      <block type="sparql_variable_select">
+        <field name="VARIABLE">?country</field>
+        <value name="NEXT_VARIABLE">
+          <block type="sparql_variable_select">
+            <field name="VARIABLE">?city</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select">
+                <field name="VARIABLE">?cityPop</field>
+              </block>
             </value>
-        </block>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+
+    <block type="sparql_variable_select">
+      <field name="VARIABLE">?cityPop</field>
+    </block>
+
+    <block type="sparql_variable_select">
+      <field name="VARIABLE">?percent</field>
+    </block>
+
+  <block type="sparql_prefix">
+    <mutation prefixes="4"></mutation>
+    <field name="PREFIX_LABEL0">rdf</field>
+    <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+    <field name="PREFIX_LABEL1">rdfs</field>
+    <field name="URI1">http://www.w3.org/2000/01/rdf-schema#</field>
+    <field name="PREFIX_LABEL2">owl</field>
+    <field name="URI2">http://www.w3.org/2002/07/owl#</field>
+    <field name="PREFIX_LABEL3"> </field>
+    <field name="URI3">http://www.semwebtech.org/mondial/10/meta#</field>
+    <next>
+      <block type="sparql_select">
+        <value name="VARIABLES">
+          <block type="sparql_variable_select_demo">
+            <field name="VARIABLE">continent</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select_demo">
+                <field name="VARIABLE">country</field>
+                <value name="NEXT_VARIABLE">
+                  <block type="sparql_variable_select_demo">
+                    <field name="VARIABLE">city</field>
+                    <value name="NEXT_VARIABLE">
+                      <block type="sparql_variable_select_demo">
+                        <field name="VARIABLE">cityPop</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="WHERE">
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">ct</field>
+              </block>
+            </value>
+            <statement name="PROPERTIES">
+              <block type="sparql_properties_in_class">
+                <value name="INPUT">
+                  <block type="sparql_variable_type">
+                    <field name="VARIABLE2">type</field>
+                    <value name="TYPE1">
+                      <block type="sparql_prefix_list">
+                        <field name="PREFIX">prefix_0</field>
+                      </block>
+                    </value>
+                    <value name="TYPE2">
+                      <block type="sparql_variable_typename">
+                        <field name="LABEL"> </field>
+                        <field name="VARIABLE">City</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">name</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">city</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">cityIn</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">c</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">population</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">cityPop</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="sparql_class_with_property">
+                <value name="CLASS_NAME">
+                  <block type="sparql_variable_confirmed">
+                    <field name="VARIABLE">c</field>
+                  </block>
+                </value>
+                <statement name="PROPERTIES">
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">type</field>
+                        <value name="TYPE1">
+                          <block type="sparql_prefix_list">
+                            <field name="PREFIX">prefix_0</field>
+                          </block>
+                        </value>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_typename">
+                            <field name="LABEL"> </field>
+                            <field name="VARIABLE">Country</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">name</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">country</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">population</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">countryPop</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="sparql_properties_in_class">
+                                <value name="INPUT">
+                                  <block type="sparql_variable_type">
+                                    <field name="VARIABLE2">encompassedByInfo</field>
+                                    <value name="TYPE2">
+                                      <block type="sparql_variable_varname">
+                                        <field name="VARIABLE">en</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="sparql_class_with_property">
+                    <value name="CLASS_NAME">
+                      <block type="sparql_variable_confirmed">
+                        <field name="VARIABLE">en</field>
+                      </block>
+                    </value>
+                    <statement name="PROPERTIES">
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">encompassedBy</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">con</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">percent</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">percent</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="sparql_class_with_property">
+                        <value name="CLASS_NAME">
+                          <block type="sparql_variable_confirmed">
+                            <field name="VARIABLE">con</field>
+                          </block>
+                        </value>
+                        <statement name="PROPERTIES">
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">type</field>
+                                <value name="TYPE1">
+                                  <block type="sparql_prefix_list">
+                                    <field name="PREFIX">prefix_0</field>
+                                  </block>
+                                </value>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_typename">
+                                    <field name="LABEL"> </field>
+                                    <field name="VARIABLE">Continent</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="sparql_properties_in_class">
+                                <value name="INPUT">
+                                  <block type="sparql_variable_type">
+                                    <field name="VARIABLE2">name</field>
+                                    <value name="TYPE2">
+                                      <block type="sparql_variable_varname">
+                                        <field name="VARIABLE">continent</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                              </block>
+                            </next>
+                          </block>
+                        </statement>
+                        <next>
+                          <block type="sparql_filter">
+                            <value name="FILTER_CONDITION">
+                              <block type="sparql_comparison">
+                                <field name="OPERATOR">&gt;=</field>
+                                <value name="OPERAND1">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">percent</field>
+                                  </block>
+                                </value>
+                                <value name="OPERAND2">
+                                  <block type="sparql_number">
+                                    <field name="NUMBER">50</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="sparql_filter">
+                                <value name="FILTER_CONDITION">
+                                  <block type="sparql_comparison">
+                                    <field name="OPERATOR">&gt;</field>
+                                    <value name="OPERAND1">
+                                      <block type="sparql_variable_varname">
+                                        <field name="VARIABLE">cityPop</field>
+                                      </block>
+                                    </value>
+                                    <value name="OPERAND2">
+                                      <block type="sparql_number">
+                                        <field name="NUMBER">5000000</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
 </category>
+
+<category name="Pattern Skeletons" categorystyle="examples_category"></category>
 
 <category name="1C1K" categorystyle="patterns_category">
   <block type="sparql_prefix">
@@ -1019,20 +2081,212 @@ WHERE {
     </next>
   </block>
 </category>
+
+<category name="3C" categorystyle="patterns_category">
+
+  <block type="sparql_prefix">
+    <mutation prefixes="4"></mutation>
+    <field name="PREFIX_LABEL0">rdf</field>
+    <field name="URI0">http://www.w3.org/1999/02/22-rdf-syntax-ns#</field>
+    <field name="PREFIX_LABEL1">rdfs</field>
+    <field name="URI1">http://www.w3.org/2000/01/rdf-schema#</field>
+    <field name="PREFIX_LABEL2">owl</field>
+    <field name="URI2">http://www.w3.org/2002/07/owl#</field>
+    <field name="PREFIX_LABEL3"> </field>
+    <field name="URI3">http://www.semwebtech.org/mondial/10/meta#</field>
+    <next>
+      <block type="sparql_select">
+        <value name="VARIABLES">
+          <block type="sparql_variable_select_demo">
+            <field name="VARIABLE">TBK</field>
+            <value name="NEXT_VARIABLE">
+              <block type="sparql_variable_select_demo">
+                <field name="VARIABLE">TCK</field>
+                <value name="NEXT_VARIABLE">
+                  <block type="sparql_variable_select_demo">
+                    <field name="VARIABLE">TA1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="WHERE">
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">CA</field>
+              </block>
+            </value>
+            <statement name="PROPERTIES">
+              <block type="sparql_properties_in_class">
+                <value name="INPUT">
+                  <block type="sparql_variable_type">
+                    <field name="VARIABLE2">type</field>
+                    <value name="TYPE1">
+                      <block type="sparql_prefix_list">
+                        <field name="PREFIX">prefix_0</field>
+                      </block>
+                    </value>
+                    <value name="TYPE2">
+                      <block type="sparql_variable_typename">
+                        <field name="LABEL"> </field>
+                        <field name="VARIABLE">CA</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">reationship AB</field>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_varname">
+                            <field name="VARIABLE">CB</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">relationship AC</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">CC</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">first property</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">TA1</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="sparql_class_with_property">
+                <value name="CLASS_NAME">
+                  <block type="sparql_variable_confirmed">
+                    <field name="VARIABLE">CB</field>
+                  </block>
+                </value>
+                <statement name="PROPERTIES">
+                  <block type="sparql_properties_in_class">
+                    <value name="INPUT">
+                      <block type="sparql_variable_type">
+                        <field name="VARIABLE2">type</field>
+                        <value name="TYPE1">
+                          <block type="sparql_prefix_list">
+                            <field name="PREFIX">prefix_0</field>
+                          </block>
+                        </value>
+                        <value name="TYPE2">
+                          <block type="sparql_variable_typename">
+                            <field name="LABEL"> </field>
+                            <field name="VARIABLE">CB</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">key property</field>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_varname">
+                                <field name="VARIABLE">TBK</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="sparql_class_with_property">
+                    <value name="CLASS_NAME">
+                      <block type="sparql_variable_confirmed">
+                        <field name="VARIABLE">CC</field>
+                      </block>
+                    </value>
+                    <statement name="PROPERTIES">
+                      <block type="sparql_properties_in_class">
+                        <value name="INPUT">
+                          <block type="sparql_variable_type">
+                            <field name="VARIABLE2">type</field>
+                            <value name="TYPE1">
+                              <block type="sparql_prefix_list">
+                                <field name="PREFIX">prefix_0</field>
+                              </block>
+                            </value>
+                            <value name="TYPE2">
+                              <block type="sparql_variable_typename">
+                                <field name="LABEL"> </field>
+                                <field name="VARIABLE">CC</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="sparql_properties_in_class">
+                            <value name="INPUT">
+                              <block type="sparql_variable_type">
+                                <field name="VARIABLE2">key property</field>
+                                <value name="TYPE2">
+                                  <block type="sparql_variable_varname">
+                                    <field name="VARIABLE">TCK</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+
+</category>
+
   
-        <category name="Basics" categorystyle="basics_category">
+        <category name="Constant" categorystyle="basics_category">
           <block type="sparql_string"></block>
           <block type="sparql_number"></block>
-          <block type="sparql_braces"></block>
         </category>
         <category name="Math" categorystyle="math_category">
           <block type="sparql_add"></block>
           <block type="sparql_subtract"></block>
           <block type="sparql_multiply"></block>
           <block type="sparql_divide"></block>
-          <block type="sparql_comparison"></block>
         </category>
         <category name="Logic" categorystyle="logic_category">
+          <block type="sparql_comparison"></block>
           <block type="sparql_if"></block>
           <block type="sparql_and"></block>
           <block type="sparql_or"></block>
@@ -1103,9 +2357,6 @@ WHERE {
           <block type="sparql_select"></block>
           <block type="sparql_condition"></block>
           <block type="sparql_distinct_reduced"></block>
-          <block type="sparql_filter"></block>
-          <block type="sparql_existence"></block>
-          <block type="sparql_optional"></block>
         </category>
         <category name="Condition" categorystyle="condition_category">
           <block type="sparql_orderby"></block>
@@ -1113,10 +2364,9 @@ WHERE {
           <block type="sparql_having"></block>
           <block type="sparql_limit"></block>
           <block type="sparql_offset"></block>
-          <block type="sparql_union"></block>
         </category>
-        <category name="Variable" categorystyle="variable_category">
-        // used in classname block, properties
+
+        <category name="Pattern" categorystyle="variable_category">
           <block type="sparql_properties_in_class">
             <value name="INPUT">
               <block type="sparql_variable_type">
@@ -1129,8 +2379,7 @@ WHERE {
               </block>
             </value>
           </block>
-          
-          // used in classname block, types
+
           <block type="sparql_properties_in_class">
             <value name="INPUT">
               <block type="sparql_variable_type" >
@@ -1148,26 +2397,41 @@ WHERE {
               </block>
             </value>
           </block>
-  
-        // classname block with a custom name
-        <block type="sparql_class_with_property">
-          <value name="CLASS_NAME">
-            <block type="sparql_variable_confirmed">
-              <field name="VARIABLE">custom</field>
-            </block>
-          </value>
-        </block>
-          <block type="sparql_class_with_property"></block>
-          <block type="sparql_properties_in_class"></block>
-          <block type="sparql_prefix_list"></block>
-          <block type="sparql_variable_type"></block>
+
+          <block type="sparql_class_with_property">
+            <value name="CLASS_NAME">
+              <block type="sparql_variable_confirmed">
+                <field name="VARIABLE">custom</field>
+              </block>
+            </value>
+          </block>
+
+          <block type="sparql_union"></block>
+          <block type="sparql_bind"></block>
+          <block type="sparql_optional"></block>
+          <block type="sparql_filter"></block>
+          <block type="sparql_filter">
+            <value name="FILTER_CONDITION">
+              <block type="sparql_existence">
+                <field name="EXISTS">EXISTS</field>
+                <value name="Variables">
+                  <block type="sparql_braces"></block>
+                </value>
+              </block>
+            </value>
+          </block>
+          <block type="sparql_braces"></block>
+        </category>
+
+        <category name="Variable" categorystyle="variable_category">
+          <block type="sparql_variable_confirmed"></block>
+          <block type="sparql_variable_varname"></block>
           <block type="sparql_variable_select"></block>
           <block type="sparql_variable_select_demo"></block>
           <block type="sparql_variable_typename"></block>
-          <block type="sparql_variable_varname"></block>
-          <block type="sparql_variable_confirmed"></block>
-          <block type="sparql_bind"></block>
           <block type="sparql_as"></block>
+          <block type="sparql_variable_type"></block>
+          <block type="sparql_prefix_list"></block>
         </category>
         <category name="Aggregate" categorystyle="aggregate_category">
           <block type="sparql_avg"></block>
@@ -1178,14 +2442,11 @@ WHERE {
         </category>
   
         <category name="Stored Blocks" categorystyle="stored_blocks_category">
-        ${storedBlocks.map((blockXml) => blockXml.replace(/<\/?xml[^>]*>/g, '')).join('')}
+          ${storedBlocks.map((blockXml) => blockXml.replace(/<\/?xml[^>]*>/g, '')).join('')}
       </category>
     </xml>`;
   };
   
-  useEffect(() => {
-    // console.log('Current sparqlCode:', sparqlCode);
-  }, [sparqlCode]);
   
   useEffect(() => {
     if (repo_graphDB && db_prefix_URL) {
@@ -3163,7 +4424,113 @@ PREFIX : <${db_prefix_URL}>`;
     const savedBlocks = storedBlocksStr ? JSON.parse(storedBlocksStr) : [];
     setStoredBlocks(savedBlocks);
   }, []);
-  
+
+
+
+
+  function validateBlock(block: Blockly.Block): string | null {
+    if (block.type === 'sparql_prefix') {
+        if (block.previousConnection !== null) {
+            return 'sparql_prefix block should not have a previous connection.';
+        }
+
+        const nextBlock = block.getNextBlock();
+        if (nextBlock && nextBlock.type !== 'sparql_select') {
+            return 'sparql_prefix block must be followed by a sparql_select block.';
+        }
+    }
+
+    // 可以添加更多规则
+    return null;
+  }
+
+  function validateBlockAndChildren(block: Blockly.Block): Array<{ block: Blockly.Block, message: string }> {
+    const errors: Array<{ block: Blockly.Block, message: string }> = [];
+    const errorMessage = validateBlock(block);
+    if (errorMessage) {
+        errors.push({ block, message: errorMessage });
+    }
+
+    block.getChildren(true).forEach((childBlock) => {
+        const childErrors = validateBlockAndChildren(childBlock);
+        if (childErrors.length > 0) {
+            errors.push(...childErrors);
+        }
+    });
+
+    return errors;
+  }
+
+  function validateWorkspace(workspace: Blockly.WorkspaceSvg): void {
+    // clean up previous errors
+    clearAllErrors(workspace); 
+
+    const topBlocks = workspace.getTopBlocks(true); 
+    const errors: Array<{ block: Blockly.Block, message: string }> = [];
+
+    topBlocks.forEach((block) => {
+        const result = validateBlockAndChildren(block);
+        if (result.length > 0) {
+            errors.push(...result);
+        }
+    });
+
+    if (errors.length > 0) {
+        console.log('Validation errors:', errors);
+        errors.forEach((error) => {
+            console.error('Block ID:', error.block.id, 'Error:', error.message);
+            (error.block as Blockly.BlockSvg).select();
+            (error.block as Blockly.BlockSvg).setHighlighted(true);
+            setTimeout(() => {
+                (error.block as Blockly.BlockSvg).setHighlighted(false);
+                (error.block as Blockly.BlockSvg).unselect();
+            }, 2000);
+            showErrorOnBlock(error.block, error.message); 
+        });
+    } else {
+        console.log('No validation errors found.');
+    }
+  }
+  function showErrorOnBlock(block: Blockly.Block, message: string): void {
+    const workspaceSvg = (block.workspace as Blockly.WorkspaceSvg).getParentSvg();
+    const blockSvg = (block as Blockly.BlockSvg).getSvgRoot(); 
+
+    const blockPosition = blockSvg.getBoundingClientRect();
+
+
+    const backgroundRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    backgroundRect.setAttribute("x", (blockPosition.x - 30).toString());
+    backgroundRect.setAttribute("y", (blockPosition.y - 25).toString()); 
+    backgroundRect.setAttribute("width", (blockSvg.getBoundingClientRect().width + 60).toString());
+    backgroundRect.setAttribute("height", "20");
+    backgroundRect.setAttribute("fill", "tomato");    
+    backgroundRect.setAttribute("stroke", "orangered"); 
+    backgroundRect.setAttribute("stroke-width", "1"); 
+    backgroundRect.setAttribute("rx", "5");
+    backgroundRect.setAttribute("ry", "5");
+    backgroundRect.setAttribute("error-message", "true"); 
+    backgroundRect.style.filter = 'drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5))';
+
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", (blockPosition.x + blockSvg.getBoundingClientRect().width / 2).toString());
+    text.setAttribute("y", (blockPosition.y - 10).toString()); 
+    text.setAttribute("fill", "white");
+    text.setAttribute("font-size", "14"); 
+    text.setAttribute("font-weight", "bold");
+    text.setAttribute("font-family", "Courier New, monospace");
+    text.setAttribute("text-anchor", "middle"); 
+    text.setAttribute("error-message", "true"); 
+    text.textContent = message;
+
+    workspaceSvg.appendChild(backgroundRect);
+    workspaceSvg.appendChild(text);
+  }
+
+  function clearAllErrors(workspace: Blockly.WorkspaceSvg): void {
+    const workspaceSvg = workspace.getParentSvg();
+    const errorElements = workspaceSvg.querySelectorAll('[error-message="true"]'); // 选择带有 error-message="true" 属性的元素
+    errorElements.forEach(element => element.remove()); // 移除这些元素
+}
 
   useEffect(() => {
     if (blocklyRef.current && !workspaceRef.current) {
@@ -3189,12 +4556,15 @@ PREFIX : <${db_prefix_URL}>`;
           wheel: true
         },
         theme: myTheme
-      });
+      }) as Blockly.WorkspaceSvg;
 
       loadWorkspaceFromLocalStorage();
       workspaceRef.current.addChangeListener(() => {
         saveWorkspaceToLocalStorage();
         generateSparqlCode(); 
+        if (workspaceRef.current) {
+          validateWorkspace(workspaceRef.current);
+        }
       });
     }
     if (workspaceRef.current) {

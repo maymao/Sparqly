@@ -54,7 +54,7 @@ block('sparql_variable_select_demo', {
   init: function() {
     this.appendValueInput("NEXT_VARIABLE")
         .setCheck(Sparql.TYPE_VARIABLE)
-        .appendField(new Blockly.FieldTextInput(" "), "VARIABLE");
+        .appendField(new Blockly.FieldTextInput("default"), "VARIABLE");
     this.setColour(100);
     this.setOutput(true, Sparql.TYPE_VARIABLE);
     this.setTooltip("Name: Variable\nUse for Pattern match block groups as a place holder, when constructing a query yourself, please replace this with variable block with options. \nCan be connected by: Variable.");
@@ -105,7 +105,7 @@ block('sparql_variable_confirmed', {
   init: function() {
     this.appendDummyInput()
         .appendField("?")
-        .appendField(new Blockly.FieldTextInput("custom var"), "VARIABLE");
+        .appendField(new Blockly.FieldTextInput("class name"), "VARIABLE");
     this.setColour(460);
     this.setOutput(true, Sparql.TYPE_VARIABLE);
     this.setTooltip("Name: Subject\nUsed in Triple Pattern block, indicate the subject name(class name).\nCan be connected to: Pattern(Triple Pattern).");

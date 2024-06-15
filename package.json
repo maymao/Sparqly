@@ -1,6 +1,6 @@
 {
   "private": true,
-  "author": "Gary Gao <yg9418@ic.ac.uk>",
+  "author": "May",
   "scripts": {
     "dev": "umi dev",
     "build": "umi build",
