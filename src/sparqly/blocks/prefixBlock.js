@@ -11,12 +11,12 @@ class FieldDropdownDynamic extends Blockly.FieldDropdown {
 
     static dropdownGenerator() {
       const storedPrefixes = JSON.parse(localStorage.getItem('prefixes')) || {};
-      // console.log('Stored Prefixes:', storedPrefixes); // 输出 storedPrefixes
+      // console.log('Stored Prefixes:', storedPrefixes); 
       const options = Object.entries(storedPrefixes).map(([key, label]) => {
-          // console.log('Key:', key, 'Label:', label); // 输出每个键值对
+          // console.log('Key:', key, 'Label:', label); 
           return [label, key];
       });
-      // console.log('Options:', options); // 输出最终的 options 
+      // console.log('Options:', options);
       return options.length ? options : [['default', 'default']];
     }
 }

@@ -4440,10 +4440,11 @@ PREFIX : <${db_prefix_URL}>`;
         }
     }
 
-    // 可以添加更多规则
     return null;
   }
 
+
+  
   function validateBlockAndChildren(block: Blockly.Block): Array<{ block: Blockly.Block, message: string }> {
     const errors: Array<{ block: Blockly.Block, message: string }> = [];
     const errorMessage = validateBlock(block);
@@ -4528,8 +4529,8 @@ PREFIX : <${db_prefix_URL}>`;
 
   function clearAllErrors(workspace: Blockly.WorkspaceSvg): void {
     const workspaceSvg = workspace.getParentSvg();
-    const errorElements = workspaceSvg.querySelectorAll('[error-message="true"]'); // 选择带有 error-message="true" 属性的元素
-    errorElements.forEach(element => element.remove()); // 移除这些元素
+    const errorElements = workspaceSvg.querySelectorAll('[error-message="true"]');
+    errorElements.forEach(element => element.remove());
 }
 
   useEffect(() => {

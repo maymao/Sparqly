@@ -2,7 +2,7 @@ import Blockly from 'blockly';
 import { block } from '../core/blocks.js';
 import { Sparql } from '../generator/sparqlGenerator.js';
 
-// 弃用
+// abandon
 block('sparql_class', {
   init: function() {
     this.appendDummyInput()
@@ -11,7 +11,7 @@ block('sparql_class', {
         .setCheck("Property")
     this.setPreviousStatement(true, "Class");
     this.setNextStatement(true, "Class");
-    this.setColour(120);
+    this.setColour(120);  
     this.setTooltip("Select a class.");
   }
 });
@@ -32,7 +32,7 @@ block('sparql_class', {
 block('sparql_class_with_property', {
   init: function() {
     this.appendValueInput("CLASS_NAME")
-        .appendField("Class name")
+        .appendField("We have a class called")
         .setCheck(Sparql.TYPE_VARIABLE);
     this.appendStatementInput("PROPERTIES")
         .setCheck(Sparql.TYPE_CLASSPROPERTY)

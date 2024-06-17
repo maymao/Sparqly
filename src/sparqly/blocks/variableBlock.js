@@ -28,6 +28,7 @@ block('sparql_variable_type', {
   init: function() {
     this.appendValueInput("TYPE1")
         .setCheck("Prefix list")
+        .appendField("with this property called")
     this.appendValueInput("TYPE2")
         .setCheck(Sparql.TYPE_VARIABLE)
         .appendField(":")

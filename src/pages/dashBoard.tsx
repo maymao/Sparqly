@@ -278,7 +278,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              GraphLD
+              GraphLD + Sparqly
               <IconButton
                 sx={{ marginLeft: 2 }}
                 href={`https://github.com/Garyoook/GraphLD/`}

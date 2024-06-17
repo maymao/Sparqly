@@ -6,10 +6,10 @@ block('sparql_select', {
     init: function() {
       this.appendValueInput("VARIABLES")
           .setCheck([Sparql.TYPE_VARIABLE, Sparql.TYPE_KEYWORD])
-          .appendField("SELECT");
+          .appendField("Explore all");
       this.appendStatementInput("WHERE")
           .setCheck(Sparql.TYPE_PATTERN)
-          .appendField("WHERE");
+          .appendField("That meet the following pattern");
       this.setPreviousStatement(true, Sparql.TYPE_KEYWORD);
       this.setNextStatement(true, Sparql.TYPE_KEYWORD);
       this.setColour(230);

@@ -18,7 +18,7 @@ block('sparql_orderby', {
     init: function() {
     this.appendDummyInput()
         .appendField("ORDER BY")
-        .appendField(new Blockly.FieldDropdown([["ASC", "ASC"], ["DESC", "DESC"]]), "ORDER")
+        .appendField(new Blockly.FieldDropdown([["ASC", "ASC"], ["DESC", "DESC"],["", ""]]), "ORDER")
         .appendField(new Blockly.FieldTextInput("variable"), "VARIABLE");
     this.setPreviousStatement(true, Sparql.TYPE_MODIFIER);
     this.setNextStatement(true, Sparql.TYPE_MODIFIER);
