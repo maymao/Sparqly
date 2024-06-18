@@ -83,6 +83,7 @@ import { Add, ChevronLeft, ChevronRight, Remove } from '@mui/icons-material';
 import { Log } from '@antv/g2/lib/data';
 import React from 'react';
 import { clear } from 'console';
+import { variables } from 'blockly/blocks';
 
 
 export interface VisDataProps {
@@ -4429,22 +4430,161 @@ PREFIX : <${db_prefix_URL}>`;
 
 
   function validateBlock(block: Blockly.Block): string | null {
-    if (block.type === 'sparql_prefix') {
+    switch (block.type) {
+      case 'sparql_prefix':
         if (block.previousConnection !== null) {
-            return 'sparql_prefix block should not have a previous connection.';
+            return 'Prefix block should not have a previous connection.';
+        }
+        var nextBlock = block.getNextBlock();
+        if (nextBlock && nextBlock.type !== 'sparql_select') {
+            return 'Prefix block must be followed by a Select block.';
+        }
+        break;
+
+      case 'sparql_select':
+        if (block.previousConnection !== null) {
+          const precedingBlock = block.previousConnection.targetBlock();
+          if (precedingBlock !== null && precedingBlock.type !== 'sparql_prefix') {
+              return 'Select block must be preceded by a Prefix block.';
+          }
         }
 
-        const nextBlock = block.getNextBlock();
-        if (nextBlock && nextBlock.type !== 'sparql_select') {
-            return 'sparql_prefix block must be followed by a sparql_select block.';
+        const variablesInput = block.getInputTargetBlock('VARIABLES');
+        if (variablesInput === null) {
+            return 'Select block must have variables you would like to explore connected at the 1st input.';
+        } else {
+          // var nextVarBlock : Blockly.Block | null = variablesInput;
+          // console.log('!!@@###@!!!@#$$' + nextVarBlock);
+
+          // while (nextVarBlock !== null) {
+          //     if (nextVarBlock.type !== 'sparql_variable_select' && nextVarBlock.type !== 'sparql_variable_select_demo') {
+          //         return 'The 1st input of Select block must only have Variable or Variable list blocks.';
+          //     }
+          //     nextVarBlock = nextVarBlock.getNextBlock();
+          // }
+          if (variablesInput.type !== 'sparql_variable_select' && variablesInput.type !== 'sparql_variable_select_demo') {
+            return 'The 1st input of Select block must only have Variable or Variable list blocks.';
+          }
         }
-    }
+        const whereInput = block.getInputTargetBlock('WHERE');
+        if (whereInput === null) {
+            return 'Here must have a Pattern connected.';
+        }
+
+        if (whereInput.type !== 'sparql_class_with_property' 
+          && whereInput.type !== 'sparql_filter' && whereInput.type !== 'sparql_optional'
+          && whereInput.type !== 'sparql_union' && whereInput.type !== 'sparql_bind') {
+            return 'The 2nd input must be of Class, filter, optional, bind, or union.';
+        }
+        break;
+
+      case 'sparql_distinct_reduced':
+        if (block.outputConnection === null || block.outputConnection.targetBlock() === null) {
+            return 'Distinct block must be connected to a Select block.';
+        }
+
+        const variableInput = block.getInputTargetBlock('VARIABLE');
+        if (variableInput && variableInput.type !== 'sparql_variable_select' && variableInput.type !== 'sparql_variable_select_demo') {
+            return 'The input of Distinct block must only have Variable or Variable list blocks.';
+        }
+        break;
+
+      case 'sparql_condition':
+        if (block.previousConnection !== null) {
+          const precedingConditionBlock = block.previousConnection.targetBlock();
+          if (precedingConditionBlock !== null && precedingConditionBlock.type !== 'sparql_select') {
+              return 'sparql_condition block must be preceded by a sparql_select block.';
+          }
+        }
+        break;
+
+      case 'sparql_orderby':
+        const orderbyVariable = block.getFieldValue('VARIABLE');
+        if (!orderbyVariable || orderbyVariable.trim() === '') {
+            return 'ORDER BY block must have a variable specified.';
+        }
+        break;
+
+      case 'sparql_groupby':
+        const groupbyVariable = block.getFieldValue('VARIABLE');
+        if (!groupbyVariable || groupbyVariable.trim() === '') {
+            return 'GROUP BY block must have a variable specified.';
+        }
+        break;
+
+      case 'sparql_having':
+        const havingCondition = block.getInputTargetBlock('HAVING_CONDITION');
+        if (havingCondition !== null) {
+            if (havingCondition.type !== 'sparql_comparison' 
+              && havingCondition.type !== 'sparql_and' 
+              && havingCondition.type !== 'sparql_or' 
+              && havingCondition.type !== 'sparql_not') {
+                return 'HAVING block must have a boolean blocks such as And, Or, Not and Comparison connected.';
+            }
+        }
+        break;
+
+      case 'sparql_limit':
+        const limitValue = block.getInputTargetBlock('LIMIT');
+        if (limitValue !== null) {
+            if (limitValue.type !== 'sparql_number') {
+                return 'LIMIT block must have a numeric value connected.';
+            }
+        }
+        break;
+
+      case 'sparql_offset':
+        const offsetValue = block.getInputTargetBlock('OFFSET');
+        if (offsetValue !== null) {
+          if (offsetValue.type !== 'sparql_number') {
+              return 'OFFSET block must have a numeric value connected.';
+          }
+        }
+        break;
+
+      case 'sparql_class_with_property':
+        const classNameInput = block.getInputTargetBlock('CLASS_NAME');
+        if (classNameInput !== null) {
+          if (classNameInput.type !== 'sparql_variable_confirmed') {
+              return 'The CLASS_NAME input of sparql_class_with_property block must be of type sparql_variable_confirmed.';
+          }
+        }
+        break;
+
+      case 'sparql_variable_type':
+        const varType = block.getInputTargetBlock('TYPE2');
+        if (varType !== null) {
+            if (varType.type !== 'sparql_variable_typename' && varType.type !== 'sparql_variable_varname') {
+                return 'The variable input must be Variable name or Type name blocks.';
+            }
+        }
+        break;
+
+      case 'sparql_variable_select':
+        const nextVarBlock = block.getInputTargetBlock('NEXT_VARIABLE');
+        if (nextVarBlock !== null) {
+          if (nextVarBlock.type !== 'sparql_variable_select' && nextVarBlock.type !== 'sparql_variable_select_demo') {
+              return 'Variable list block must be followed by another Variable or Variable list block.';
+          }
+        }
+        break;
+
+      case 'sparql_variable_select_demo':
+        const nextVar = block.getInputTargetBlock('NEXT_VARIABLE');
+        if (nextVar !== null) {
+          if (nextVar.type !== 'sparql_variable_select' && nextVar.type !== 'sparql_variable_select_demo') {
+              return 'Variable block must be followed by another Variable or Variable list block.';
+          }
+        }
+        break;
+
+    
+      }
 
     return null;
   }
 
 
-  
   function validateBlockAndChildren(block: Blockly.Block): Array<{ block: Blockly.Block, message: string }> {
     const errors: Array<{ block: Blockly.Block, message: string }> = [];
     const errorMessage = validateBlock(block);
