@@ -272,7 +272,7 @@ function DashboardContent() {
               <MenuIcon />
             </IconButton>
             <Typography
-              component="h1"
+              component="h4"
               variant="h4"
               color="inherit"
               noWrap
@@ -281,7 +281,7 @@ function DashboardContent() {
               GraphLD + Sparqly
               <IconButton
                 sx={{ marginLeft: 2 }}
-                href={`https://github.com/Garyoook/GraphLD/`}
+                href={`https://github.com/maymao/Sparqly/`}
                 target="_blank"
                 rel="noreferrer"
               >

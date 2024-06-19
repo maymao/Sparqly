@@ -4489,15 +4489,6 @@ PREFIX : <${db_prefix_URL}>`;
         }
         break;
 
-      case 'sparql_condition':
-        if (block.previousConnection !== null) {
-          const precedingConditionBlock = block.previousConnection.targetBlock();
-          if (precedingConditionBlock !== null && precedingConditionBlock.type !== 'sparql_select') {
-              return 'sparql_condition block must be preceded by a sparql_select block.';
-          }
-        }
-        break;
-
       case 'sparql_orderby':
         const orderbyVariable = block.getFieldValue('VARIABLE');
         if (!orderbyVariable || orderbyVariable.trim() === '') {
@@ -4546,7 +4537,7 @@ PREFIX : <${db_prefix_URL}>`;
         const classNameInput = block.getInputTargetBlock('CLASS_NAME');
         if (classNameInput !== null) {
           if (classNameInput.type !== 'sparql_variable_confirmed') {
-              return 'The CLASS_NAME input of sparql_class_with_property block must be of type sparql_variable_confirmed.';
+              return 'The class name input of Triple Pattern block must be Subject block.';
           }
         }
         break;
@@ -4577,8 +4568,6 @@ PREFIX : <${db_prefix_URL}>`;
           }
         }
         break;
-
-    
       }
 
     return null;
@@ -4632,6 +4621,7 @@ PREFIX : <${db_prefix_URL}>`;
         console.log('No validation errors found.');
     }
   }
+
   function showErrorOnBlock(block: Blockly.Block, message: string): void {
     const workspaceSvg = (block.workspace as Blockly.WorkspaceSvg).getParentSvg();
     const blockSvg = (block as Blockly.BlockSvg).getSvgRoot(); 
@@ -4640,9 +4630,9 @@ PREFIX : <${db_prefix_URL}>`;
 
 
     const backgroundRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    backgroundRect.setAttribute("x", (blockPosition.x - 30).toString());
+    backgroundRect.setAttribute("x", (blockPosition.x - 305).toString());
     backgroundRect.setAttribute("y", (blockPosition.y - 25).toString()); 
-    backgroundRect.setAttribute("width", (blockSvg.getBoundingClientRect().width + 60).toString());
+    backgroundRect.setAttribute("width", (1000).toString());
     backgroundRect.setAttribute("height", "20");
     backgroundRect.setAttribute("fill", "tomato");    
     backgroundRect.setAttribute("stroke", "orangered"); 
@@ -4653,13 +4643,13 @@ PREFIX : <${db_prefix_URL}>`;
     backgroundRect.style.filter = 'drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5))';
 
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    text.setAttribute("x", (blockPosition.x + blockSvg.getBoundingClientRect().width / 2).toString());
+    text.setAttribute("x", (blockPosition.x - 300).toString());
     text.setAttribute("y", (blockPosition.y - 10).toString()); 
     text.setAttribute("fill", "white");
     text.setAttribute("font-size", "14"); 
     text.setAttribute("font-weight", "bold");
     text.setAttribute("font-family", "Courier New, monospace");
-    text.setAttribute("text-anchor", "middle"); 
+    text.setAttribute("text-anchor", "start"); 
     text.setAttribute("error-message", "true"); 
     text.textContent = message;
 
