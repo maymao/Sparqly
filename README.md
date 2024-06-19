@@ -1,5 +1,7 @@
 # GraphLD + Sparqly
 
+Currently deployed on http://sparqly.s3-website.eu-west-2.amazonaws.com/.
+
 This project was initialy bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 And then migrate to [UmiJs](https://umijs.org/) for better file management & routing experience.
